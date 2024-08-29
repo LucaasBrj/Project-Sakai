@@ -1,0 +1,769 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>Sakai</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js"></script>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div id="mainDialogueBox">
+    <p id="mainDialogueText"></p>
+</div>
+<div id ="kazekageDialogueBox">
+    <p id="kazeDialogueText"></p>
+</div>
+<div id ="bot1DialogueBox">
+    <p id="bot1DialogueText"></p>
+</div>
+<div id ="bot2DialogueBox">
+    <p id="bot2DialogueText"></p>
+</div>
+<div id ="bot3DialogueBox">
+    <p id="bot3DialogueText"></p>
+</div>
+<div id ="bot4DialogueBox">
+    <p id="bot4DialogueText"></p>
+</div>
+<div id="fightDialogueBox1">
+    <p id="fightDialogueText1"></p>
+</div>
+<div id="fightDialogueBox2">
+    <p id="fightDialogueText2"></p>
+</div>
+<div id="fightDialogueBoxMain">
+    <p id="fightDialogueTextMain">STOP ! ARRETEZ VOUS ET VENEZ VOIR !</p>
+</div>
+<script type="text/javascript">
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 1905,
+        height: 990,
+        physics: {
+            default: 'arcade',
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+
+    const dialoguesKazekage = [
+        "Salut Kazekage",
+        "Salut Maitre Sakai, va chercher tes neuilles de frères on doit parler",
+        "A propos de quoi chef ?",
+        "A propos de feur, c'est très important, je t'attends ici.",
+        "Ok ca marche je vais les chercher",
+        "Qu'est ce que tu fais encore ici ? Va les chercher !",
+    ];
+
+    const dialoguesBot1 = [
+        "X ? Mais qu'est ce que tu fais ici ? C'est pas dans tes habitudes de trainer dans les librairies",
+        "Je savais que je te trouverais ici X, va vite devant le palais, le Kazekage nous attend !",
+        "Le Kazekage ?! Mais pourquoi ? X a encore fait une bêtise ?",
+        "Non, je crois que c'est à propos de notre dernière mission, il veut nous parler. Va au palais, je vais chercher les autres et je te rejoins.",
+        "Ok, je vous attends devant le palais.",
+    ];
+
+    const dialoguesBot2et3 = [
+        "X quest-ce que tu veux encore, on était entrain de s'entrainer !",
+        "J'allais le détruire et me faire 10 000 Ryos sans forcer, pourquoi tu viens tout gâcher ?", 
+        "Vous ferez ça plus tard, là le Kazekage nous attend pour parler de notre dernière mission, allez devant le palais, je vous rejoins.",
+        "Le Kazekage ? Serieux ?",
+        "Je sais pas trop si je suis excité ou terrifié... Allez X on y va rapidement !",
+    ];
+
+    const dialoguesBot3 = [
+    ];
+
+    const dialoguesBot4 = [
+        "Ohhhh ! SaluUUuuT X !",
+        "Serieusement, regarde dans quel êtat tu t'es encore mis, on fait que de te répéter d'arrêter de boire !",
+        "DésOlééééé MAaaaAis le sAKé de la tAaverne est tEllEmEnt bOn !",
+        "Allez avale ça, ça devrait te remettre sur pied, ca vient de la serre Kusamaru.",
+        "*GLOUP...*",
+        "Accélère, on doit rejoindre les autres devant le palais, le Kazekage nous attends.",
+        "Quoi j'ai encore fait une connerie ? J'en ai marre...",
+        "Non pour une fois c'est pas pour ça, va devant le palais, je te rejoins.",
+        "Hmmmm... Ok !",
+    ]
+
+    const dialogueFightBot2 = [
+        "J'espère que t'es prêt, j'vais te choquer",
+        "Tu vas voir ce que je vais te faire !",
+        "Si t'es si sur de toi, le gagnant prend 10 000 ryos !",
+    ]
+
+    const dialogueFightBot3 = [
+        "Essaye déjà de me toucher !",
+        "Je vais te montrer de quoi je suis capable !",
+        "Je te suis, 10 000 ryos pour le gagnant !",
+    ]
+
+    var lieu = "palais"
+    var dialogPage = 0;
+    var dialogBot1Page = 0;
+    var dialogBot2et3Page = 0;
+    var dialogBot4Page = 0;
+    var isFightDialogStarted = false;
+    let FieldDialogue = 'waiting';
+    let frere2 = null;
+    let frere3 = null;
+
+    function preload ()
+    {
+        this.load.image('bg1', 'assets/images/backgrounds/bg1.png');
+        this.load.image('bg2', 'assets/images/backgrounds/bg2.png');
+        this.load.image('bg3', 'assets/images/backgrounds/bg3.png');
+        this.load.image('bg4', 'assets/images/backgrounds/bg4.png');
+        this.load.image('bg5', 'assets/images/backgrounds/bg5.png');
+        this.load.spritesheet('joueur',
+            'assets/images/characters/joueur.png',
+            { frameWidth: 91, frameHeight: 158 }
+        );
+        this.load.spritesheet('bot1',
+            'assets/images/characters/bot1.png',
+            { frameWidth: 91, frameHeight: 158 }
+        );
+        this.load.spritesheet('bot2',
+            'assets/images/characters/bot2.png',
+            { frameWidth: 91, frameHeight: 158 }
+        );
+        this.load.spritesheet('bot3',
+            'assets/images/characters/bot3.png',
+            { frameWidth: 91, frameHeight: 158 }
+        );
+        this.load.spritesheet('bot4',
+            'assets/images/characters/bot4.png',
+            { frameWidth: 91, frameHeight: 158 }
+        );
+    }
+
+    function create ()
+    {
+        this.input.on('pointerdown', function (pointer) {
+            console.log('Coordonnées du clic: x=' + pointer.x + ' y=' + pointer.y);
+        });
+
+
+        this.bg1 = this.add.image(1905/2, 495, 'bg1').setDepth(-1);
+        this.bg2 = this.add.image(1905/2, 495, 'bg2').setDepth(-2).setVisible(false);
+        this.bg3 = this.add.image(1905/2, 495, 'bg3').setDepth(-2).setVisible(false);
+        this.bg4 = this.add.image(1905/2, 495, 'bg4').setDepth(-2).setVisible(false);
+        this.bg5 = this.add.image(1905/2, 495, 'bg5').setDepth(-2).setVisible(false);
+
+        this.player = this.physics.add.sprite(1905 / 2, 990 / 2, 'joueur');
+        this.bureau = this.physics.add.sprite(930, 210); // enlever le troisième paramètre pour faire disparaitre le bloc
+        this.physics.world.enable(this.bureau);
+        this.bureau.body.setImmovable(true);
+        this.physics.add.collider(this.player, this.bureau);
+        this.bureau.setDisplaySize(540, 75);
+
+        this.kazekage = this.physics.add.sprite(900, 125);
+        
+        this.kazekage.setDisplaySize(100, 100);
+        this.kazekage.setImmovable(true);
+
+        //this.physics.add.collider(this.player, this.bureau);
+        this.physics.add.collider(this.player, this.kazekage);
+
+        this.bot1 = this.physics.add.sprite(1150, 180, 'bot1');
+        this.bot1.setCollideWorldBounds(true);
+        this.bot1.setImmovable(true);
+        this.physics.add.collider(this.player, this.bot1);
+
+        this.bot2 = this.physics.add.sprite(90, 330, 'bot2');
+        this.bot2.setCollideWorldBounds(true);
+        this.physics.add.collider(this.player, this.bot2);
+
+        this.bot3 = this.physics.add.sprite(1800, 330, 'bot3');
+        this.bot3.setCollideWorldBounds(true);
+        this.physics.add.collider(this.player, this.bot3);
+
+        this.bot4 = this.physics.add.sprite(300, 680, 'bot4');
+        this.bot4.setCollideWorldBounds(true);
+        this.bot4.setImmovable(true);
+        this.physics.add.collider(this.player, this.bot4);
+
+        this.bibliotheque1 = this.physics.add.sprite(580, 210);
+        this.bibliotheque1.setDisplaySize(80, 350);
+        this.bibliotheque1.setImmovable(true);
+        this.physics.add.collider(this.player, this.bibliotheque1);
+
+        this.bibliotheque2 = this.physics.add.sprite(805, 210);
+        this.bibliotheque2.setDisplaySize(80, 350);
+        this.bibliotheque2.setImmovable(true);
+        this.physics.add.collider(this.player, this.bibliotheque2);
+
+        this.bibliotheque3 = this.physics.add.sprite(1040, 210);
+        this.bibliotheque3.setDisplaySize(80, 350);
+        this.bibliotheque3.setImmovable(true);
+        this.physics.add.collider(this.player, this.bibliotheque3);
+
+        this.bibliotheque4 = this.physics.add.sprite(1270, 210);
+        this.bibliotheque4.setDisplaySize(80, 350);
+        this.bibliotheque4.setImmovable(true);
+        this.physics.add.collider(this.player, this.bibliotheque4);
+
+        this.bibliotheque5 = this.physics.add.sprite(1500, 210);
+        this.bibliotheque5.setDisplaySize(80, 350);
+        this.bibliotheque5.setImmovable(true);
+        this.physics.add.collider(this.player, this.bibliotheque5);
+
+        this.bibliotheque6 = this.physics.add.sprite(1730, 210);
+        this.bibliotheque6.setDisplaySize(80, 350);
+        this.bibliotheque6.setImmovable(true);
+        this.physics.add.collider(this.player, this.bibliotheque6);
+
+        this.bibliotheque7 = this.physics.add.sprite(580, 770);
+        this.bibliotheque7.setDisplaySize(80, 350);
+        this.bibliotheque7.setImmovable(true);
+        this.physics.add.collider(this.player, this.bibliotheque7);
+
+        this.bibliotheque8 = this.physics.add.sprite(805, 770);
+        this.bibliotheque8.setDisplaySize(80, 350);
+        this.bibliotheque8.setImmovable(true);
+        this.physics.add.collider(this.player, this.bibliotheque8);
+
+        this.bibliotheque9 = this.physics.add.sprite(1040, 770);
+        this.bibliotheque9.setDisplaySize(80, 350);
+        this.bibliotheque9.setImmovable(true);
+        this.physics.add.collider(this.player, this.bibliotheque9);
+
+        this.bibliotheque10 = this.physics.add.sprite(1270, 770);
+        this.bibliotheque10.setDisplaySize(80, 350);
+        this.bibliotheque10.setImmovable(true);
+        this.physics.add.collider(this.player, this.bibliotheque10);
+
+        this.bibliotheque11 = this.physics.add.sprite(1500, 770);
+        this.bibliotheque11.setDisplaySize(80, 350);
+        this.bibliotheque11.setImmovable(true);
+        this.physics.add.collider(this.player, this.bibliotheque11);
+
+        this.bibliotheque12 = this.physics.add.sprite(1730, 770);
+        this.bibliotheque12.setDisplaySize(80, 350);
+        this.bibliotheque12.setImmovable(true);
+        this.physics.add.collider(this.player, this.bibliotheque12);
+
+        this.table1 = this.physics.add.sprite(280, 215);
+        this.table1.setDisplaySize(100, 100);
+        this.table1.setImmovable(true);
+        this.physics.add.collider(this.player, this.table1);
+
+        this.table2 = this.physics.add.sprite(280, 770);
+        this.table2.setDisplaySize(100, 100);
+        this.table2.setImmovable(true);
+        this.physics.add.collider(this.player, this.table2);
+
+        this.siege1 = this.physics.add.sprite(280, 110);
+        this.siege1.setDisplaySize(40, 40);
+        this.siege1.setImmovable(true);
+        this.physics.add.collider(this.player, this.siege1);
+
+        this.siege2 = this.physics.add.sprite(185, 215);
+        this.siege2.setDisplaySize(40, 40);
+        this.siege2.setImmovable(true);
+        this.physics.add.collider(this.player, this.siege2);
+
+        this.siege3 = this.physics.add.sprite(280, 310);
+        this.siege3.setDisplaySize(40, 40);
+        this.siege3.setImmovable(true);
+        this.physics.add.collider(this.player, this.siege3);
+
+        this.siege4 = this.physics.add.sprite(385, 215);
+        this.siege4.setDisplaySize(40, 40);
+        this.siege4.setImmovable(true);
+        this.physics.add.collider(this.player, this.siege4);
+
+        this.siege5 = this.physics.add.sprite(280, 670);
+        this.siege5.setDisplaySize(40, 40);
+        this.siege5.setImmovable(true);
+        this.physics.add.collider(this.player, this.siege5);
+
+        this.siege6 = this.physics.add.sprite(185, 770);
+        this.siege6.setDisplaySize(40, 40);
+        this.siege6.setImmovable(true);
+        this.physics.add.collider(this.player, this.siege6);
+
+        this.siege7 = this.physics.add.sprite(280, 870);
+        this.siege7.setDisplaySize(40, 40);
+        this.siege7.setImmovable(true);
+        this.physics.add.collider(this.player, this.siege7);
+
+        this.siege8 = this.physics.add.sprite(385, 770);
+        this.siege8.setDisplaySize(40, 40);
+        this.siege8.setImmovable(true);
+        this.physics.add.collider(this.player, this.siege8);
+
+        this.grillageTerrain1 = this.physics.add.sprite(385, 670);
+        this.grillageTerrain1.setDisplaySize(920, 10);
+        this.grillageTerrain1.setImmovable(true);
+        this.physics.add.collider(this.player, this.grillageTerrain1);
+
+        this.grillageTerrain2 = this.physics.add.sprite(1500, 670);
+        this.grillageTerrain2.setDisplaySize(920, 10);
+        this.grillageTerrain2.setImmovable(true);
+        this.physics.add.collider(this.player, this.grillageTerrain2);
+
+        this.rue1 = this.physics.add.sprite(950, 60);
+        this.rue1.setDisplaySize(1900, 130);
+        this.rue1.setImmovable(true);
+        this.physics.add.collider(this.player, this.rue1);
+
+        this.rue2 = this.physics.add.sprite(980, 920);
+        this.rue2.setDisplaySize(1900, 160);
+        this.rue2.setImmovable(true);
+        this.physics.add.collider(this.player, this.rue2);
+
+        this.bibliotheque1.disableBody(true, true);
+        this.bibliotheque2.disableBody(true, true);
+        this.bibliotheque3.disableBody(true, true);
+        this.bibliotheque4.disableBody(true, true);
+        this.bibliotheque5.disableBody(true, true);
+        this.bibliotheque6.disableBody(true, true);
+        this.bibliotheque7.disableBody(true, true);
+        this.bibliotheque8.disableBody(true, true);
+        this.bibliotheque9.disableBody(true, true);
+        this.bibliotheque10.disableBody(true, true);
+        this.bibliotheque11.disableBody(true, true);
+        this.bibliotheque12.disableBody(true, true);
+        this.siege1.disableBody(true, true);
+        this.siege2.disableBody(true, true);
+        this.siege3.disableBody(true, true);
+        this.siege4.disableBody(true, true);
+        this.siege5.disableBody(true, true);
+        this.siege6.disableBody(true, true);
+        this.siege7.disableBody(true, true);
+        this.siege8.disableBody(true, true);
+        this.table1.disableBody(true, true);
+        this.table2.disableBody(true, true);
+        this.grillageTerrain1.disableBody(true, true);
+        this.grillageTerrain2.disableBody(true, true);
+        this.rue1.disableBody(true, true);
+        this.rue2.disableBody(true, true);
+        this.bot1.disableBody(true, true);
+        this.bot2.disableBody(true, true);
+        this.bot3.disableBody(true, true);
+        this.bot4.disableBody(true, true);
+
+        this.player.setCollideWorldBounds(true);
+
+        this.cursors = this.input.keyboard.createCursorKeys();
+
+        this.player.setCollideWorldBounds(true);
+
+        this.cursors = this.input.keyboard.createCursorKeys();
+    }
+
+    function update ()
+    {
+        const seuilProximite = 300;
+        const seuilProximitePorte = 100;
+
+        this.player.setVelocity(0);
+
+        if (this.cursors.left.isDown) {
+            this.player.setVelocityX(-1000);
+        } else if (this.cursors.right.isDown) {
+            this.player.setVelocityX(1000);
+        }
+
+        if (this.cursors.up.isDown) {
+            this.player.setVelocityY(-1000);
+        } else if (this.cursors.down.isDown) {
+            this.player.setVelocityY(1000);
+        }
+
+
+        // ========================================================= BUREAU DU KAZEKAGE =========================================================
+
+        const distanceKazekageCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 900, 350);
+        const distancePorteKazekageCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 920, 970);
+
+
+        if (lieu == "palais") {
+            if (distanceKazekageCoord < seuilProximite && this.cursors.space.isDown && espaceRelache) {
+                if (dialogPage == 5 || (dialogPage >=5 && dialogPage%2 !== 0)) {
+                    console.log('ferme')
+                    document.getElementById('kazekageDialogueBox').style.display = 'none';
+                    document.getElementById('mainDialogueBox').style.display = 'none';
+                    dialogPage++;
+                    espaceRelache = false;
+                    console.log(dialogPage)
+                } else if (dialogPage >= 5 && dialogPage%2 == 0) {
+                    console.log('réouvre')
+                    let dialogueText = dialoguesKazekage[5];
+                    document.getElementById('kazeDialogueText').innerText = dialogueText;
+                    document.getElementById('kazekageDialogueBox').style.display = 'flex';
+                    espaceRelache = false;
+                    dialogPage++;
+
+                } else {
+                    console.log('dialogue')
+                    console.log(dialogPage)
+                    let dialogueText = dialoguesKazekage[dialogPage];
+                    console.log(dialogueText)
+                    if (dialogPage%2 == 1) {
+                        console.log('kazekage')
+                        document.getElementById('kazekageDialogueBox').style.display = 'flex';
+                        document.getElementById('mainDialogueBox').style.display = 'none';
+                        document.getElementById('kazeDialogueText').innerText = dialogueText;
+                    } else {
+                        console.log('main')
+                        document.getElementById('mainDialogueBox').style.display = 'flex';
+                        document.getElementById('kazekageDialogueBox').style.display = 'none';
+                        document.getElementById('mainDialogueText').innerText = dialogueText;
+                    }
+                    espaceRelache = false;
+                    dialogPage++;
+                }
+            }
+
+            // Direction Place
+            if (distancePorteKazekageCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
+                this.bureau.disableBody(true, true);
+                this.kazekage.disableBody(true, true);
+                this.bg2.setVisible(true);
+                this.bg1.setVisible(false);
+                lieu = "place"
+                espaceRelache = false;
+            }
+        }
+
+
+        // ========================================================= PLACE DE SUNA =========================================================
+
+        const distancePorteLibrairieCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1905, 495);
+        const distancePorteRueCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 0, 495);
+        const distancePortePalaisCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 920, 970);
+        const distancePorteTerrainCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 960, 0);
+
+        if (lieu == "place") {
+            // Direction Palais
+            if (distancePortePalaisCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
+                this.bureau.enableBody(true, 910, 210);
+                this.kazekage.enableBody(true, 900, 125);
+                this.bg2.setVisible(false);
+                this.bg1.setVisible(true);
+                lieu = "palais"
+                espaceRelache = false;
+            }
+
+            // Direction Librairie
+            if (distancePorteLibrairieCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
+                // move the player to the left side of the screen
+                this.player.x = 0;
+                this.player.y = 990 / 2;
+                this.bg3.setVisible(true);
+                this.bg2.setVisible(false);
+                lieu = "librairie"
+                espaceRelache = false;
+            }
+
+            // Direction Rue
+            if (distancePorteRueCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
+                // move the player to the right side of the screen
+                this.player.x = 1905;
+                this.player.y = 990 / 2;
+                this.bg5.setVisible(true);
+                this.bg2.setVisible(false);
+                lieu = "rue"
+                espaceRelache = false;
+            }
+
+            // Direction Terrain
+            if (distancePorteTerrainCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
+                // move the player to the top side of the screen
+                this.player.y = 990;
+                this.player.x = 1905 / 2;
+                this.bg4.setVisible(true);
+                this.bg2.setVisible(false);
+                lieu = "terrain"
+                espaceRelache = false;
+            }
+        }
+
+        if (!this.cursors.space.isDown) {
+            espaceRelache = true;
+        }
+
+
+        // ========================================================= LIBRAIRIE DE SUNA =========================================================
+
+        const distancePortePlaceCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 0, 495);
+        const distanceBot1Coord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1150, 180);
+
+        if (lieu == "librairie") {
+            this.bibliotheque1.enableBody(true, 580, 210);
+            this.bibliotheque2.enableBody(true, 805, 210);
+            this.bibliotheque3.enableBody(true, 1040, 210);
+            this.bibliotheque4.enableBody(true, 1270, 210);
+            this.bibliotheque5.enableBody(true, 1500, 210);
+            this.bibliotheque6.enableBody(true, 1730, 210);
+            this.bibliotheque7.enableBody(true, 580, 770);
+            this.bibliotheque8.enableBody(true, 805, 770);
+            this.bibliotheque9.enableBody(true, 1040, 770);
+            this.bibliotheque10.enableBody(true, 1270, 770);
+            this.bibliotheque11.enableBody(true, 1500, 770);
+            this.bibliotheque12.enableBody(true, 1730, 770);
+            this.siege1.enableBody(true, 280, 110);
+            this.siege2.enableBody(true, 185, 215);
+            this.siege3.enableBody(true, 280, 310);
+            this.siege4.enableBody(true, 385, 215);
+            this.siege5.enableBody(true, 280, 670);
+            this.siege6.enableBody(true, 185, 770);
+            this.siege7.enableBody(true, 280, 870);
+            this.siege8.enableBody(true, 385, 770);
+            this.table1.enableBody(true, 280, 215);
+            this.table2.enableBody(true, 280, 770);
+            this.bot1.enableBody(true, 1150, 180);
+            this.bot1.setVisible(true);
+
+            if (distanceBot1Coord < seuilProximite && this.cursors.space.isDown && espaceRelache) {
+                if (dialogBot1Page >= 5) {
+                    document.getElementById('bot1DialogueBox').style.display = 'none';
+                    document.getElementById('mainDialogueBox').style.display = 'none';
+                    dialogBot1Page++;
+                    espaceRelache = false;
+                } else {
+                    let dialogueText = dialoguesBot1[dialogBot1Page];
+                    if (dialogBot1Page%2 == 0) {
+                        document.getElementById('bot1DialogueBox').style.display = 'flex';
+                        document.getElementById('mainDialogueBox').style.display = 'none';
+                        document.getElementById('bot1DialogueText').innerText = dialogueText;
+                    } else {
+                        document.getElementById('mainDialogueBox').style.display = 'flex';
+                        document.getElementById('bot1DialogueBox').style.display = 'none';
+                        document.getElementById('mainDialogueText').innerText = dialogueText;
+                    }
+                    espaceRelache = false;
+                    dialogBot1Page++;
+                }
+            }
+
+
+            // Direction Place
+            if (distancePortePlaceCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
+                this.bibliotheque1.disableBody(true, true);
+                this.bibliotheque2.disableBody(true, true);
+                this.bibliotheque3.disableBody(true, true);
+                this.bibliotheque4.disableBody(true, true);
+                this.bibliotheque5.disableBody(true, true);
+                this.bibliotheque6.disableBody(true, true);
+                this.bibliotheque7.disableBody(true, true);
+                this.bibliotheque8.disableBody(true, true);
+                this.bibliotheque9.disableBody(true, true);
+                this.bibliotheque10.disableBody(true, true);
+                this.bibliotheque11.disableBody(true, true);
+                this.bibliotheque12.disableBody(true, true);
+                this.siege1.disableBody(true, true);
+                this.siege2.disableBody(true, true);
+                this.siege3.disableBody(true, true);
+                this.siege4.disableBody(true, true);
+                this.siege5.disableBody(true, true);
+                this.siege6.disableBody(true, true);
+                this.siege7.disableBody(true, true);
+                this.siege8.disableBody(true, true);
+                this.table1.disableBody(true, true);
+                this.table2.disableBody(true, true);
+                this.bot1.disableBody(true, true);
+                
+                this.player.x = 1905;
+                this.player.y = 495;
+                this.bg3.setVisible(false);
+                this.bg2.setVisible(true);
+                lieu = "place"
+                espaceRelache = false;
+            }
+        }
+
+
+        // ========================================================= RUE DE SUNA =========================================================
+
+        const distancePortePlaceRueCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1905, 495);
+        const distanceBot4Coord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 300, 680);
+
+        if (lieu == "rue") {
+            this.bot4.enableBody(true, 300, 680);
+            this.bot4.setVisible(true);
+
+            if (distanceBot4Coord < seuilProximite && this.cursors.space.isDown && espaceRelache) {
+                if (dialogBot4Page >= 9) {
+                    document.getElementById('bot4DialogueBox').style.display = 'none';
+                    document.getElementById('mainDialogueBox').style.display = 'none';
+                    dialogBot4Page++;
+                    espaceRelache = false;
+                } else {
+                    let dialogueText = dialoguesBot4[dialogBot4Page];
+                    if (dialogBot4Page%2 == 0) {
+                        document.getElementById('bot4DialogueBox').style.display = 'flex';
+                        document.getElementById('mainDialogueBox').style.display = 'none';
+                        document.getElementById('bot4DialogueText').innerText = dialogueText;
+                    } else {
+                        document.getElementById('mainDialogueBox').style.display = 'flex';
+                        document.getElementById('bot4DialogueBox').style.display = 'none';
+                        document.getElementById('mainDialogueText').innerText = dialogueText;
+                    }
+                    espaceRelache = false;
+                    dialogBot4Page++;
+                }
+            }
+
+            // Direction Place
+            if (distancePortePlaceRueCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
+                this.player.x = 0;
+                this.player.y = 495;
+                this.bg5.setVisible(false);
+                this.bg2.setVisible(true);
+                this.bot4.disableBody(true, true);
+                lieu = "place"
+                espaceRelache = false;
+            }
+        }
+
+
+        // ========================================================= TERRAIN DE SUNA =========================================================
+
+        const distancePortePlaceTerrainCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 960, 990);
+
+        if (lieu == "terrain") {
+            if (!frere2) {
+                frere2 = this.physics.add.sprite(90, 330, 'bot2');
+            }
+
+            if (!frere3) {
+                frere3 = this.physics.add.sprite(1800, 330, 'bot3');
+            }
+            this.grillageTerrain1.enableBody(true, 385, 670);
+            this.grillageTerrain2.enableBody(true, 1500, 670);
+
+            if (!isFightDialogStarted) {
+                console.log('fight dialog started')
+                setTimeout(() => updateFightDialogue1(0), 500);
+                setTimeout(() => updateFightDialogue2(0), 2500);
+                isFightDialogStarted = true;
+            }
+
+            if (this.player.y <= 450 && dialogBot2et3Page <= 5) {
+                this.player.setVelocity(0, 0);
+                if (FieldDialogue == 'waiting') {
+                    document.getElementById('fightDialogueBoxMain').style.display = 'flex';
+                    FieldDialogue = 'started';
+                    setTimeout(() => {
+                        document.getElementById('fightDialogueText1').innerText = '???';
+                        document.getElementById('fightDialogueText2').innerText = '???';
+                    }, 500)
+                    setTimeout(() => {
+                        this.physics.moveTo(frere2, this.player.x - 100, this.player.y, 800);
+                        this.physics.moveTo(frere3, this.player.x + 100, this.player.y, 800);
+                        document.getElementById('fightDialogueBox1').style.display = 'none';
+                        document.getElementById('fightDialogueBoxMain').style.display = 'none';
+                        document.getElementById('fightDialogueBox2').style.display = 'none';
+                    }, 1500);
+                    document.getElementById('bot2DialogueBox').style.display = 'flex';
+                    document.getElementById('bot2DialogueText').innerText = dialoguesBot2et3[dialogBot2et3Page];
+                    dialogBot2et3Page++;
+                    FieldDialogue = 'ended';
+                }
+            
+                if (Phaser.Math.Distance.Between(frere2.x, frere2.y, this.player.x - 100, this.player.y) < 50) {
+                    frere2.body.stop();
+                }
+                if (Phaser.Math.Distance.Between(frere3.x, frere3.y, this.player.x + 100, this.player.y) < 50) {
+                    frere3.body.stop();
+                }
+
+                if (FieldDialogue == 'ended' && this.cursors.space.isDown && espaceRelache) {
+                    if (dialogBot2et3Page >= 5) {
+                        document.getElementById('bot3DialogueBox').style.display = 'none';
+                        document.getElementById('mainDialogueBox').style.display = 'none';
+                        dialogBot2et3Page++;
+                        espaceRelache = false;
+                        this.player.setVelocity(1000, 1000);
+                    } else {
+                        let dialogueText = dialoguesBot2et3[dialogBot2et3Page];
+                        if (dialogBot2et3Page%3 == 0) {
+                            document.getElementById('bot2DialogueBox').style.display = 'flex';
+                            document.getElementById('mainDialogueBox').style.display = 'none';
+                            document.getElementById('bot2DialogueText').innerText = dialogueText;
+                        } else if (dialogBot2et3Page%3 == 1) {
+                            document.getElementById('bot3DialogueBox').style.display = 'flex';
+                            document.getElementById('bot2DialogueBox').style.display = 'none';
+                            document.getElementById('bot3DialogueText').innerText = dialogueText;
+                        } else if (dialogBot2et3Page%3 == 2) {
+                            document.getElementById('mainDialogueBox').style.display = 'flex';
+                            document.getElementById('bot3DialogueBox').style.display = 'none';
+                            document.getElementById('mainDialogueText').innerText = dialogueText;
+                        }
+                        espaceRelache = false;
+                        dialogBot2et3Page++;
+                    }
+                }
+            }
+
+
+            // Direction Place
+            if (distancePortePlaceTerrainCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
+                this.player.x = 1905 / 2;
+                this.player.y = 0;
+                this.grillageTerrain1.disableBody(true, true);
+                this.grillageTerrain2.disableBody(true, true);
+                this.bg4.setVisible(false);
+                this.bg2.setVisible(true);
+                this.bot2.disableBody(true, true);
+                this.bot3.disableBody(true, true);
+                frere2.disableBody(true, true);
+                frere2.setVisible(false);
+                frere3.disableBody(true, true);
+                frere3.setVisible(false);
+                lieu = "place"
+                espaceRelache = false;
+            }
+        }
+    }
+
+    function updateFightDialogue1(index) {
+        if (FieldDialogue == "ended") {
+            return
+        }
+        if (index < dialogueFightBot2.length) {
+            document.getElementById('fightDialogueBox1').style.display = 'flex';
+            document.getElementById('fightDialogueText1').innerText = dialogueFightBot2[index];
+        }
+        if (index < dialogueFightBot2.length || index < dialogueFightBot3.length) {
+            setTimeout(() => updateFightDialogue1(index + 1), 4000);
+        }
+        if (index == dialogueFightBot2.length) {
+            setTimeout(() => {
+                document.getElementById('fightDialogueBox1').style.display = 'none';
+            }, 2000);
+        }
+    }
+
+    function updateFightDialogue2(index) {
+        if (FieldDialogue == "ended") {
+            return
+        }
+        if (index < dialogueFightBot2.length) {
+            document.getElementById('fightDialogueBox2').style.display = 'flex';
+            document.getElementById('fightDialogueText2').innerText = dialogueFightBot3[index];
+        }
+        if (index < dialogueFightBot2.length || index < dialogueFightBot3.length) {
+            setTimeout(() => updateFightDialogue2(index + 1), 4000);
+        }
+        if (index == dialogueFightBot2.length) {
+            setTimeout(() => {
+                document.getElementById('fightDialogueBox2').style.display = 'none';
+            }, 2000);
+        }
+    }
+
+
+</script>
+
+</body>
+</html>
