@@ -121,6 +121,7 @@
         false,
         false
     ]
+    let freres = []
 
     function preload ()
     {
@@ -146,7 +147,7 @@
             { frameWidth: 91, frameHeight: 158 }
         );
         this.load.spritesheet('bot4',
-            'assets/images/characters/bot4.png',
+            'assets/images/characters/joueur.png',
             { frameWidth: 91, frameHeight: 158 }
         );
     }
@@ -474,6 +475,11 @@
                 this.bg1.setVisible(true);
                 lieu = "palais"
                 espaceRelache = false;
+                freresCompleted.forEach((completed, index) => {
+                    if (completed) {
+                        freres[index].disableBody(true, true);
+                    }
+                })
             }
 
             // Direction Librairie
@@ -485,6 +491,11 @@
                 this.bg2.setVisible(false);
                 lieu = "librairie"
                 espaceRelache = false;
+                freresCompleted.forEach((completed, index) => {
+                    if (completed) {
+                        freres[index].disableBody(true, true);
+                    }
+                })
             }
 
             // Direction Rue
@@ -496,6 +507,11 @@
                 this.bg2.setVisible(false);
                 lieu = "rue"
                 espaceRelache = false;
+                freresCompleted.forEach((completed, index) => {
+                    if (completed) {
+                        freres[index].disableBody(true, true);
+                    }
+                })
             }
 
             // Direction Terrain
@@ -507,6 +523,11 @@
                 this.bg2.setVisible(false);
                 lieu = "terrain"
                 espaceRelache = false;
+                freresCompleted.forEach((completed, index) => {
+                    if (completed) {
+                        freres[index].disableBody(true, true);
+                    }
+                })
             }
         }
 
@@ -521,7 +542,7 @@
         const distanceBot1Coord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1150, 180);
 
         if (lieu == "librairie") {
-            if (!frere1) {
+            if (!frere1 && !freresCompleted[0]) {
                 frere1 = this.physics.add.sprite(1120, 180, 'bot1');
             }
             this.bibliotheque1.enableBody(true, 580, 210);
@@ -566,7 +587,7 @@
                     setTimeout(() => {
                         frere1.body.stop();
                     }, 2500);
-                    freresCompleted[1] = true;
+                    freresCompleted[0] = true;
                 } else {
                     inDialogue = true;
                     let dialogueText = dialoguesBot1[dialogBot1Page];
@@ -609,8 +630,10 @@
                 this.siege8.disableBody(true, true);
                 this.table1.disableBody(true, true);
                 this.table2.disableBody(true, true);
-                frere1.disableBody(true, true);
-                frere1 = null;
+                if (frere1) {
+                    frere1.disableBody(true, true);
+                    frere1 = null;
+                }
                 
                 this.player.x = 1905;
                 this.player.y = 495;
@@ -621,7 +644,8 @@
                 let freresCount = 0;
                 freresCompleted.forEach((completed, index) => {
                     if (completed) {
-                        this.physics.add.sprite(1905/2, 850 - (freresCount*10), 'bot'+(index));
+                        freres[index] = this.physics.add.sprite(1905/2, 850 - (freresCount*55), 'bot'+(index+1));
+                        freres[index].setDepth(0-index);
                         freresCount++;
                     }
                 })
@@ -672,6 +696,14 @@
                 this.bot4.disableBody(true, true);
                 lieu = "place"
                 espaceRelache = false;
+
+                let freresCount = 0;
+                freresCompleted.forEach((completed, index) => {
+                    if (completed) {
+                        freres[index] = this.physics.add.sprite(1905/2, 850 - (freresCount*55), 'bot'+(index));
+                        freresCount++;
+                    }
+                })
             }
         }
 
@@ -681,11 +713,11 @@
         const distancePortePlaceTerrainCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 960, 990);
 
         if (lieu == "terrain") {
-            if (!frere2) {
+            if (!frere2 && !freresCompleted[1]) {
                 frere2 = this.physics.add.sprite(90, 330, 'bot2');
             }
 
-            if (!frere3) {
+            if (!frere3 && !freresCompleted[2]) {
                 frere3 = this.physics.add.sprite(1800, 330, 'bot3');
             }
             this.grillageTerrain1.enableBody(true, 385, 670);
@@ -734,6 +766,27 @@
                         dialogBot2et3Page++;
                         espaceRelache = false;
                         this.player.setVelocity(1000, 1000);
+
+                        setTimeout(() => {
+                            this.physics.moveTo(frere2, 1905/2, 565, 800);
+                        }, 500);
+                        setTimeout(() => {
+                            this.physics.moveTo(frere3, 1905/2, 565, 800);
+                        }, 800);
+                        setTimeout(() => {
+                            frere2.body.stop();
+                            this.physics.moveTo(frere2, 1905/2, 1000, 800);
+                        }, 740);
+                        setTimeout(() => {
+                            frere3.body.stop();
+                            this.physics.moveTo(frere3, 1905/2, 1000, 800);
+                        }, 1040);
+                        setTimeout(() => {
+                            frere3.body.stop();
+                            frere2.body.stop();
+                        }, 2500);
+                        freresCompleted[1] = true;
+                        freresCompleted[2] = true;
                     } else {
                         let dialogueText = dialoguesBot2et3[dialogBot2et3Page];
                         if (dialogBot2et3Page%3 == 0) {
@@ -766,12 +819,24 @@
                 this.bg2.setVisible(true);
                 this.bot2.disableBody(true, true);
                 this.bot3.disableBody(true, true);
-                frere2.disableBody(true, true);
-                frere2.setVisible(false);
-                frere3.disableBody(true, true);
-                frere3.setVisible(false);
+                if (frere2) {
+                    frere2.disableBody(true, true);
+                    frere2 = null;
+                }
+                if (frere3) {
+                    frere3.disableBody(true, true);
+                    frere3 = null;
+                }
                 lieu = "place"
                 espaceRelache = false;
+                let freresCount = 0;
+                freresCompleted.forEach((completed, index) => {
+                    if (completed) {
+                        freres[index] = this.physics.add.sprite(1905/2, 850 - (freresCount*55), 'bot'+(index+1));
+                        freres[index].setDepth(0-index);
+                        freresCount++;
+                    }
+                })
             }
         }
     }
