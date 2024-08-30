@@ -114,6 +114,7 @@
     let frere2 = null;
     let frere3 = null;
     let frere1 = null;
+    let frere4 = null;
     let inDialogue = false;
     let freresCompleted = [
         false,
@@ -159,11 +160,11 @@
         });
 
 
-        this.bg1 = this.add.image(1905/2, 495, 'bg1').setDepth(-1);
-        this.bg2 = this.add.image(1905/2, 495, 'bg2').setDepth(-2).setVisible(false);
-        this.bg3 = this.add.image(1905/2, 495, 'bg3').setDepth(-2).setVisible(false);
-        this.bg4 = this.add.image(1905/2, 495, 'bg4').setDepth(-2).setVisible(false);
-        this.bg5 = this.add.image(1905/2, 495, 'bg5').setDepth(-2).setVisible(false);
+        this.bg1 = this.add.image(1905/2, 495, 'bg1').setDepth(-6);
+        this.bg2 = this.add.image(1905/2, 495, 'bg2').setDepth(-7).setVisible(false);
+        this.bg3 = this.add.image(1905/2, 495, 'bg3').setDepth(-7).setVisible(false);
+        this.bg4 = this.add.image(1905/2, 495, 'bg4').setDepth(-7).setVisible(false);
+        this.bg5 = this.add.image(1905/2, 495, 'bg5').setDepth(-7).setVisible(false);
 
         this.player = this.physics.add.sprite(1905 / 2, 990 / 2, 'joueur');
         this.player.setDepth(1);
@@ -662,8 +663,9 @@
         const distanceBot4Coord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 300, 680);
 
         if (lieu == "rue") {
-            this.bot4.enableBody(true, 300, 680);
-            this.bot4.setVisible(true);
+            if (!frere4 && !freresCompleted[3]) {
+                frere4 = this.physics.add.sprite(300, 680, 'bot4');
+            }
 
             if (distanceBot4Coord < seuilProximite && this.cursors.space.isDown && espaceRelache) {
                 if (dialogBot4Page >= 9) {
@@ -671,6 +673,14 @@
                     document.getElementById('mainDialogueBox').style.display = 'none';
                     dialogBot4Page++;
                     espaceRelache = false;
+                    setTimeout(() => {
+                        this.physics.moveTo(frere4, 1905, 500, 800);
+                    }, 500);
+                    setTimeout(() => {
+                        frere4.body.stop();
+                    }, 2800);
+                    freresCompleted[3] = true;    
+            
                 } else {
                     let dialogueText = dialoguesBot4[dialogBot4Page];
                     if (dialogBot4Page%2 == 0) {
@@ -700,7 +710,9 @@
                 let freresCount = 0;
                 freresCompleted.forEach((completed, index) => {
                     if (completed) {
-                        freres[index] = this.physics.add.sprite(1905/2, 850 - (freresCount*55), 'bot'+(index));
+                        console.log('frere'+(index+1))
+                        freres[index] = this.physics.add.sprite(1905/2, 850 - (freresCount*55), 'bot'+(index+1));
+                        freres[index].setDepth(0-index);
                         freresCount++;
                     }
                 })
