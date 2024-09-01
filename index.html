@@ -36,13 +36,17 @@
 </div>
 <script type="text/javascript">
 
+    const height = 900
+    const width = 900
+
     var config = {
         type: Phaser.AUTO,
-        width: 1905,
-        height: 990,
+        width: width,
+        height: height,
         physics: {
             default: 'arcade',
         },
+        pixelArt: true,
         scene: {
             preload: preload,
             create: create,
@@ -104,6 +108,7 @@
         "Je te suis, 10 000 ryos pour le gagnant !",
     ]
 
+
     let lieu = "palais"
     let dialogPage = 0;
     let dialogBot1Page = 0;
@@ -131,10 +136,6 @@
         this.load.image('bg3', 'assets/images/backgrounds/bg3.png');
         this.load.image('bg4', 'assets/images/backgrounds/bg4.png');
         this.load.image('bg5', 'assets/images/backgrounds/bg5.png');
-        this.load.spritesheet('joueur',
-            'assets/images/characters/joueur.png',
-            { frameWidth: 91, frameHeight: 158 }
-        );
         this.load.spritesheet('bot1',
             'assets/images/characters/bot1.png',
             { frameWidth: 91, frameHeight: 158 }
@@ -151,6 +152,24 @@
             'assets/images/characters/joueur.png',
             { frameWidth: 91, frameHeight: 158 }
         );
+
+
+        this.load.spritesheet('walkSide1', 'assets/images/characters/walkSide/002.png', {
+            frameWidth: 29, // largeur d'un cadre de l'animation
+            frameHeight: 32 // hauteur d'un cadre de l'animation
+        });
+
+        this.load.spritesheet('walkUp1', 'assets/images/characters/walkUp/002.png', {
+            frameWidth: 34,
+            frameHeight: 32
+        });
+
+        this.load.spritesheet('walkDown1', 'assets/images/characters/walkDown/002.png', {
+            frameWidth: 34,
+            frameHeight: 32
+        });
+
+
     }
 
     function create ()
@@ -159,28 +178,98 @@
             console.log('Coordonnées du clic: x=' + pointer.x + ' y=' + pointer.y);
         });
 
+        this.player = this.physics.add.sprite(880/2, 800, 'walkUp1');
+        this.player.setScale(3.55)
+        // Créer l'animation pour marcher sur les côtés
+        this.anims.create({
+            key: 'walkSide1',
+            frames: this.anims.generateFrameNumbers('walkSide1', { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1
+        });
 
-        this.bg1 = this.add.image(1905/2, 495, 'bg1').setDepth(-6);
-        this.bg2 = this.add.image(1905/2, 495, 'bg2').setDepth(-7).setVisible(false);
-        this.bg3 = this.add.image(1905/2, 495, 'bg3').setDepth(-7).setVisible(false);
-        this.bg4 = this.add.image(1905/2, 495, 'bg4').setDepth(-7).setVisible(false);
-        this.bg5 = this.add.image(1905/2, 495, 'bg5').setDepth(-7).setVisible(false);
+        // Créer l'animation pour marcher vers le haut
+        this.anims.create({
+            key: 'walkUp1',
+            frames: this.anims.generateFrameNumbers('walkUp1', { start: 0, end: 5 }),
+            frameRate: 8,
+            repeat: -1
+        });
 
-        this.player = this.physics.add.sprite(1905 / 2, 990 / 2, 'joueur');
-        this.player.setDepth(1);
-        this.bureau = this.physics.add.sprite(930, 210); // enlever le troisième paramètre pour faire disparaitre le bloc
-        this.physics.world.enable(this.bureau);
-        this.bureau.body.setImmovable(true);
-        this.physics.add.collider(this.player, this.bureau);
-        this.bureau.setDisplaySize(540, 75);
+        // Créer l'animation pour marcher vers le bas
+        this.anims.create({
+            key: 'walkDown1',
+            frames: this.anims.generateFrameNumbers('walkDown1', { start: 0, end: 5 }),
+            frameRate: 8,
+            repeat: -1
+        });
 
-        this.kazekage = this.physics.add.sprite(900, 125);
-        
-        this.kazekage.setDisplaySize(100, 100);
-        this.kazekage.setImmovable(true);
+        this.bg1 = this.add.image(height/2, width/2, 'bg1').setDepth(-6);
+        this.bg1.setScale(3.55)
+        this.bg2 = this.add.image(height/2, height/2, 'bg2').setDepth(-7).setVisible(false);
+        this.bg2.setScale(3.55)
+        this.bg3 = this.add.image(height/2, height/2, 'bg3').setDepth(-7).setVisible(false);
+        this.bg3.setScale(3.55)
+        this.bg4 = this.add.image(height/2, height/2, 'bg4').setDepth(-7).setVisible(false);
+        this.bg4.setScale(3.55)
+        this.bg5 = this.add.image(height/2, height/2, 'bg5').setDepth(-7).setVisible(false);
+        this.bg5.setScale(3.55)
 
-        //this.physics.add.collider(this.player, this.bureau);
-        this.physics.add.collider(this.player, this.kazekage);
+
+        // ********************************************************* CREATE BUREAU DU KAZEKAGE *********************************************************
+
+        this.bureauPart1 = this.physics.add.sprite(435, 270);
+        this.bureauPart2 = this.physics.add.sprite(320, 250);
+        this.bureauPart3 = this.physics.add.sprite(560, 250);
+        this.physics.world.enable(this.bureauPart1);
+        this.physics.world.enable(this.bureauPart2);
+        this.physics.world.enable(this.bureauPart3);
+        this.physics.add.collider(this.player, this.bureauPart1)
+        this.physics.add.collider(this.player, this.bureauPart2)
+        this.physics.add.collider(this.player, this.bureauPart3)
+        this.bureauPart1.body.setImmovable(true);
+        this.bureauPart2.body.setImmovable(true);
+        this.bureauPart3.body.setImmovable(true);
+        this.bureauPart1.setDisplaySize(200, 60);
+        this.bureauPart2.setDisplaySize(30, 100);
+        this.bureauPart3.setDisplaySize(30, 100);
+
+        this.topWall = this.physics.add.sprite(0, 120);
+        this.physics.world.enable(this.topWall);
+        this.topWall.body.setImmovable(true);
+        this.topWall.setDisplaySize(2000, 10);
+        this.physics.add.collider(this.player, this.topWall);
+
+        this.chess = this.physics.add.sprite(190, 520);
+        this.physics.world.enable(this.chess);
+        this.chess.body.setImmovable(true);
+        this.chess.setDisplaySize(10, 10);
+        this.physics.add.collider(this.player, this.chess);
+
+        this.kazekageLeftLibrary = this.physics.add.sprite(50, 600);
+        this.physics.world.enable(this.kazekageLeftLibrary);
+        this.kazekageLeftLibrary.body.setImmovable(true);
+        this.kazekageLeftLibrary.setDisplaySize(70, 750);
+        this.physics.add.collider(this.player, this.kazekageLeftLibrary);
+
+        this.kazekageRightLibrary = this.physics.add.sprite(840, 600);
+        this.physics.world.enable(this.kazekageRightLibrary);
+        this.kazekageRightLibrary.body.setImmovable(true);
+        this.kazekageRightLibrary.setDisplaySize(70, 750);
+        this.physics.add.collider(this.player, this.kazekageRightLibrary);
+
+        const kazekageOfficeHitboxes = [
+            this.bureauPart1,
+            this.bureauPart2,
+            this.bureauPart3,
+            this.topWall,
+            this.chess,
+            this.kazekageLeftLibrary,
+            this.kazekageRightLibrary
+        ]
+
+
+        // ********************************************************* CREATE BOTS *********************************************************
 
         this.bot1 = this.physics.add.sprite(1150, 180, 'bot1');
         this.bot1.setCollideWorldBounds(true);
@@ -200,7 +289,10 @@
         this.bot4.setImmovable(true);
         this.physics.add.collider(this.player, this.bot4);
 
-        this.bibliotheque1 = this.physics.add.sprite(580, 210);
+
+        // ********************************************************* CREATE LIBRAIRIE DE SUNA *********************************************************
+
+        this.bibliotheque1 = this.physics.add.sprite(200, 210, 'hitbox');
         this.bibliotheque1.setDisplaySize(80, 350);
         this.bibliotheque1.setImmovable(true);
         this.physics.add.collider(this.player, this.bibliotheque1);
@@ -383,28 +475,30 @@
 
         this.player.setVelocity(0);
 
-        if (this.cursors.left.isDown) {
-            this.player.setVelocityX(-1000);
-        } else if (this.cursors.right.isDown) {
-            this.player.setVelocityX(1000);
-        }
-
-        if (this.cursors.up.isDown) {
-            this.player.setVelocityY(-1000);
-        } else if (this.cursors.down.isDown) {
-            this.player.setVelocityY(1000);
-        }
-
-        if (inDialogue) {
-            this.player.setVelocity(0);
+        if (this.input.keyboard.createCursorKeys().left.isDown) {
+            this.player.setVelocityX(-700);
+            this.player.anims.play('walkSide1', true);
+            this.player.flipX = true;
+        } else if (this.input.keyboard.createCursorKeys().right.isDown) {
+            this.player.setVelocityX(700);
+            this.player.anims.play('walkSide1', true);
+            this.player.flipX = false;
+        } else if (this.input.keyboard.createCursorKeys().up.isDown) {
+            this.player.setVelocityY(-700);
+            this.player.anims.play('walkUp1', true);
+        } else if (this.input.keyboard.createCursorKeys().down.isDown) {
+            this.player.setVelocityY(700);
+            this.player.anims.play('walkDown1', true);
+        } else {
+            this.player.anims.stop();
         }
         
 
 
-        // ========================================================= BUREAU DU KAZEKAGE =========================================================
+        // ========================================================= UPDATE BUREAU DU KAZEKAGE =========================================================
 
-        const distanceKazekageCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 900, 350);
-        const distancePorteKazekageCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 920, 970);
+        const distanceKazekageCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 435, 355);
+        const distancePorteKazekageCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 435, 900);
 
 
         if (lieu == "palais") {
@@ -450,22 +544,27 @@
 
             // Direction Place
             if (distancePorteKazekageCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
-                this.bureau.disableBody(true, true);
-                this.kazekage.disableBody(true, true);
-                this.bg2.setVisible(true);
+                this.bureauPart1.disableBody(true, true);
+                this.bureauPart2.disableBody(true, true);
+                this.bureauPart3.disableBody(true, true);
+                this.topWall.disableBody(true, true);
+                this.chess.disableBody(true, true);
+                this.kazekageLeftLibrary.disableBody(true, true);
+                this.kazekageRightLibrary.disableBody(true, true);
                 this.bg1.setVisible(false);
+                this.bg2.setVisible(true);
                 lieu = "place"
                 espaceRelache = false;
             }
         }
 
 
-        // ========================================================= PLACE DE SUNA =========================================================
+        // ========================================================= UPDATE PLACE DE SUNA =========================================================
 
-        const distancePorteLibrairieCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1905, 495);
-        const distancePorteRueCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 0, 495);
-        const distancePortePalaisCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 920, 970);
-        const distancePorteTerrainCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 960, 0);
+        const distancePorteLibrairieCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 890, 535);
+        const distancePorteRueCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 0, 630);
+        const distancePortePalaisCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 470, 890);
+        const distancePorteTerrainCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 537, 0);
 
         if (lieu == "place") {
             // Direction Palais
@@ -503,7 +602,7 @@
             if (distancePorteRueCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
                 // move the player to the right side of the screen
                 this.player.x = 1905;
-                this.player.y = 990 / 2;
+                this.player.y = 560;
                 this.bg5.setVisible(true);
                 this.bg2.setVisible(false);
                 lieu = "rue"
@@ -537,16 +636,17 @@
         }
 
 
-        // ========================================================= LIBRAIRIE DE SUNA =========================================================
+        // ========================================================= UPDATE LIBRAIRIE DE SUNA =========================================================
 
-        const distancePortePlaceCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 0, 495);
+        const distancePortePlaceCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 0, 515);
         const distanceBot1Coord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1150, 180);
 
         if (lieu == "librairie") {
             if (!frere1 && !freresCompleted[0]) {
                 frere1 = this.physics.add.sprite(1120, 180, 'bot1');
             }
-            this.bibliotheque1.enableBody(true, 580, 210);
+            this.bibliotheque1.enableBody(true, 580, 210, "hitbox");
+            this.bibliotheque1.setVisible(true);
             this.bibliotheque2.enableBody(true, 805, 210);
             this.bibliotheque3.enableBody(true, 1040, 210);
             this.bibliotheque4.enableBody(true, 1270, 210);
@@ -657,9 +757,9 @@
         }
 
 
-        // ========================================================= RUE DE SUNA =========================================================
+        // ========================================================= UPDATE RUE DE SUNA =========================================================
 
-        const distancePortePlaceRueCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1905, 495);
+        const distancePortePlaceRueCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 890, 580);
         const distanceBot4Coord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 300, 680);
 
         if (lieu == "rue") {
@@ -700,7 +800,7 @@
             // Direction Place
             if (distancePortePlaceRueCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
                 this.player.x = 0;
-                this.player.y = 495;
+                this.player.y = 610;
                 this.bg5.setVisible(false);
                 this.bg2.setVisible(true);
                 this.bot4.disableBody(true, true);
@@ -720,9 +820,9 @@
         }
 
 
-        // ========================================================= TERRAIN DE SUNA =========================================================
+        // ========================================================= UPDATE TERRAIN DE SUNA =========================================================
 
-        const distancePortePlaceTerrainCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 960, 990);
+        const distancePortePlaceTerrainCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 890, 890);
 
         if (lieu == "terrain") {
             if (!frere2 && !freresCompleted[1]) {
@@ -823,7 +923,7 @@
 
             // Direction Place
             if (distancePortePlaceTerrainCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
-                this.player.x = 1905 / 2;
+                this.player.x = 550;
                 this.player.y = 0;
                 this.grillageTerrain1.disableBody(true, true);
                 this.grillageTerrain2.disableBody(true, true);

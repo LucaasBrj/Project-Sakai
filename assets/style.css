@@ -153,3 +153,10 @@
     font-size: 1.5em;
     background-color: white;
 }
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(33,24,27);
+}
