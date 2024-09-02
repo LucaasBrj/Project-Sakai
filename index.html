@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Sakai</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typeit@7.0.4/dist/typeit.min.js"></script>
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -596,6 +597,8 @@
         if (lieu == "palais") {
             document.getElementById('secondaryPortrait').src = 'assets/images/portrait/01.png';
             if (distanceKazekageCoord < seuilProximite && this.cursors.space.isDown && espaceRelache) {
+                document.getElementById('mainDialogueText').innerText = "";
+                document.getElementById('secondaryDialogueText').innerText = "";
                 if (dialogPage == 5 || (dialogPage >=5 && dialogPage%2 !== 0)) {
                     inDialogue = false;
                     document.getElementById('secondaryDialogueBox').style.display = 'none';
@@ -605,7 +608,7 @@
                 } else if (dialogPage >= 5 && dialogPage%2 == 0) {
                     inDialogue = true;
                     let dialogueText = dialoguesKazekage[5];
-                    document.getElementById('secondaryDialogueText').innerText = dialogueText;
+                    writeDialogueText(dialogueText, 'secondaryDialogueText');
                     document.getElementById('secondaryDialogueBox').style.display = 'flex';
                     espaceRelache = false;
                     dialogPage++;
@@ -613,14 +616,15 @@
                 } else {
                     inDialogue = true;
                     let dialogueText = dialoguesKazekage[dialogPage];
+                    console.log(dialogueText)
                     if (dialogPage%2 == 1) {
                         document.getElementById('secondaryDialogueBox').style.display = 'flex';
                         document.getElementById('mainDialogueBox').style.display = 'none';
-                        document.getElementById('secondaryDialogueText').innerText = dialogueText;
+                        writeDialogueText(dialogueText, 'secondaryDialogueText');
                     } else {
                         document.getElementById('mainDialogueBox').style.display = 'flex';
                         document.getElementById('secondaryDialogueBox').style.display = 'none';
-                        document.getElementById('mainDialogueText').innerText = dialogueText;
+                        writeDialogueText(dialogueText, 'mainDialogueText');
                     }
                     espaceRelache = false;
                     dialogPage++;
@@ -763,6 +767,8 @@
             this.leftWallLibrairie2.enableBody(true, 20, 700);
 
             if (distanceBot1Coord < seuilProximite && this.cursors.space.isDown && espaceRelache) {
+                document.getElementById('secondaryDialogueText').innerText = "";
+                document.getElementById('mainDialogueText').innerText = "";
                 if (dialogBot1Page >= 5) {
                     inDialogue = false;
                     document.getElementById('secondaryDialogueBox').style.display = 'none';
@@ -794,11 +800,11 @@
                     if (dialogBot1Page%2 == 0) {
                         document.getElementById('secondaryDialogueBox').style.display = 'flex';
                         document.getElementById('mainDialogueBox').style.display = 'none';
-                        document.getElementById('secondaryDialogueText').innerText = dialogueText;
+                        writeDialogueText(dialogueText, 'secondaryDialogueText');
                     } else {
                         document.getElementById('mainDialogueBox').style.display = 'flex';
                         document.getElementById('secondaryDialogueBox').style.display = 'none';
-                        document.getElementById('mainDialogueText').innerText = dialogueText;
+                        writeDialogueText(dialogueText, 'mainDialogueText');
                     }
                     espaceRelache = false;
                     dialogBot1Page++;
@@ -1079,6 +1085,21 @@
             setTimeout(() => {
                 document.getElementById('fightDialogueBox2').style.display = 'none';
             }, 2000);
+        }
+    }
+
+    function writeDialogueText(text, elementSelector) {
+        console.log('writing text:', text);
+        const element = document.querySelector("#"+elementSelector);
+        if (element) {
+            new TypeIt(element, {
+                strings: text,
+                speed: 10,
+                waitUntilVisible: true,
+                cursor: false,
+            }).go();
+        } else {
+            console.error('Element not found:', elementSelector);
         }
     }
 
