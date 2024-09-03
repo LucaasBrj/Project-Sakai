@@ -34,10 +34,18 @@
 <div id="fightDialogueBoxMain">
     <p id="fightDialogueTextMain">STOP ! ARRETEZ VOUS ET VENEZ VOIR !</p>
 </div>
+<div id ="questBox">
+    <div id="questBoxContent">
+        <p id="questText"></p>
+    </div>
+</div>
+<div id="fullScreenButton">
+    <img id="fullScreenImage" src="assets/images/other/start.png" onclick="openFullscreen()">
+</div>
 <script type="text/javascript">
 
-    const height = 900
-    const width = 900
+    const height = 1080
+    const width = 1920
 
     var config = {
         type: Phaser.AUTO,
@@ -108,8 +116,25 @@
         "Je te suis, 10 000 ryos pour le gagnant !",
     ]
 
+    const quests = [
+        "Parler au Kazekage",
+        "Trouver les autres frères Sakai (0/4)",
+        "Trouver les autres frères Sakai (1/4)",
+        "Trouver les autres frères Sakai (2/4)",
+        "Trouver les autres frères Sakai (3/4)",
+        "Trouver les autres frères Sakai (4/4)",
+        "Retourner voir le Kazekage"
+    ]
+
+    const introDialogue = [
+        "C'est la première fois que je rentre dans ce bureau... C'est impressionnant !",
+        "Le Kazekage m\'a convoqué mais je ne sais pas vraiment à quel sujet...",
+        "Allez Kikuo ! Pas de bégaiement et présente toi au Kazekage !"
+    ]
+
 
     let lieu = "palais"
+    let introDialogPage = 0;
     let dialogPage = 0;
     let dialogBot1Page = 0;
     let dialogBot2et3Page = 0;
@@ -212,8 +237,9 @@
         this.input.on('pointerdown', function (pointer) {
             console.log('Coordonnées du clic: x=' + pointer.x + ' y=' + pointer.y);
         });
+        this.cameras.main.setBackgroundColor('#21181b');
 
-        this.player = this.physics.add.sprite(880/2, 800, 'walkUp1');
+        this.player = this.physics.add.sprite(width/2-10, height-250, 'walkUp1');
         this.player.setScale(3.55)
         this.anims.create({
             key: 'walkSide1',
@@ -299,23 +325,35 @@
         });
         this.frere4.disableBody(true, true);
 
-        this.bg1 = this.add.image(height/2, width/2, 'bg1').setDepth(-6);
-        this.bg1.setScale(3.55)
-        this.bg2 = this.add.image(height/2, height/2, 'bg2').setDepth(-7).setVisible(false);
-        this.bg2.setScale(3.55)
-        this.bg3 = this.add.image(height/2, height/2, 'bg3').setDepth(-7).setVisible(false);
-        this.bg3.setScale(3.55)
-        this.bg4 = this.add.image(height/2, height/2, 'bg4').setDepth(-7).setVisible(false);
-        this.bg4.setScale(3.55)
-        this.bg5 = this.add.image(height/2, height/2, 'bg5').setDepth(-7).setVisible(false);
-        this.bg5.setScale(3.55)
+        console.log(height, width)
+        this.bg1 = this.add.image(width/2, height/2, 'bg1').setDepth(-6);
+        this.bg1.displayHeight = height;
+        this.bg1.setOrigin(0.5, 0.5);
+        this.bg1.displayWidth = height;
+        this.bg2 = this.add.image(width/2, height/2, 'bg2').setDepth(-7).setVisible(false);
+        this.bg2.displayHeight = height;
+        this.bg2.setOrigin(0.5, 0.5);
+        this.bg2.displayWidth = height;
+        this.bg3 = this.add.image(width/2, height/2, 'bg3').setDepth(-7).setVisible(false);
+        this.bg3.displayHeight = height;
+        this.bg3.setOrigin(0.5, 0.5);
+        this.bg3.displayWidth = height;
+        this.bg4 = this.add.image(width/2, height/2, 'bg4').setDepth(-7).setVisible(false);
+        this.bg4.displayHeight = height;
+        this.bg4.setOrigin(0.5, 0.5);
+        this.bg4.displayWidth = height;
+        this.bg5 = this.add.image(width/2, height/2, 'bg5').setDepth(-7).setVisible(false);
+        this.bg5.displayHeight = height;
+        this.bg5.setOrigin(0.5, 0.5);
+        this.bg5.displayWidth = height;
 
+        writeQuestText(quests[0], 'questText');
 
         // ********************************************************* CREATE BUREAU DU KAZEKAGE *********************************************************
 
-        this.bureauPart1 = this.physics.add.sprite(435, 270);
-        this.bureauPart2 = this.physics.add.sprite(320, 250);
-        this.bureauPart3 = this.physics.add.sprite(560, 250);
+        this.bureauPart1 = this.physics.add.sprite(945, 330);
+        this.bureauPart2 = this.physics.add.sprite(800, 280);
+        this.bureauPart3 = this.physics.add.sprite(1090, 280);
         this.physics.world.enable(this.bureauPart1);
         this.physics.world.enable(this.bureauPart2);
         this.physics.world.enable(this.bureauPart3);
@@ -329,37 +367,37 @@
         this.bureauPart2.setDisplaySize(30, 100);
         this.bureauPart3.setDisplaySize(30, 100);
 
-        this.topWall = this.physics.add.sprite(0, 120);
+        this.topWall = this.physics.add.sprite(560, 150);
         this.physics.world.enable(this.topWall);
         this.topWall.body.setImmovable(true);
         this.topWall.setDisplaySize(2000, 10);
         this.physics.add.collider(this.player, this.topWall);
 
-        this.chess = this.physics.add.sprite(190, 520);
+        this.chess = this.physics.add.sprite(650, 620);
         this.physics.world.enable(this.chess);
         this.chess.body.setImmovable(true);
         this.chess.setDisplaySize(10, 10);
         this.physics.add.collider(this.player, this.chess);
 
-        this.kazekageLeftLibrary = this.physics.add.sprite(50, 600);
+        this.kazekageLeftLibrary = this.physics.add.sprite(490, 600);
         this.physics.world.enable(this.kazekageLeftLibrary);
         this.kazekageLeftLibrary.body.setImmovable(true);
         this.kazekageLeftLibrary.setDisplaySize(70, 750);
         this.physics.add.collider(this.player, this.kazekageLeftLibrary);
 
-        this.kazekageRightLibrary = this.physics.add.sprite(840, 600);
+        this.kazekageRightLibrary = this.physics.add.sprite(1400, 600);
         this.physics.world.enable(this.kazekageRightLibrary);
         this.kazekageRightLibrary.body.setImmovable(true);
         this.kazekageRightLibrary.setDisplaySize(70, 750);
         this.physics.add.collider(this.player, this.kazekageRightLibrary);
 
-        this.kazekageBottomWall = this.physics.add.sprite(215, 860);
+        this.kazekageBottomWall = this.physics.add.sprite(710, 1025);
         this.physics.world.enable(this.kazekageBottomWall);
         this.kazekageBottomWall.body.setImmovable(true);
         this.kazekageBottomWall.setDisplaySize(200, 10);
         this.physics.add.collider(this.player, this.kazekageBottomWall);
 
-        this.kazekageBottomWall2 = this.physics.add.sprite(670, 860);
+        this.kazekageBottomWall2 = this.physics.add.sprite(1190, 1025);
         this.physics.world.enable(this.kazekageBottomWall2);
         this.kazekageBottomWall2.body.setImmovable(true);
         this.kazekageBottomWall2.setDisplaySize(200, 10);
@@ -399,91 +437,100 @@
 
         // ********************************************************* CREATE LIBRAIRIE DE SUNA *********************************************************
 
-        this.bibliotheque1 = this.physics.add.sprite(200, 210, 'hitbox');
-        this.bibliotheque1.setDisplaySize(20, 250);
+        this.bibliotheque1 = this.physics.add.sprite(200, 210, 'hit');
+        this.bibliotheque1.setDisplaySize(30, 250);
         this.bibliotheque1.setImmovable(true);
         this.physics.add.collider(this.player, this.bibliotheque1);
 
-        this.bibliotheque2 = this.physics.add.sprite(200, 600, 'hitbox');
-        this.bibliotheque2.setDisplaySize(20, 250);
+        this.bibliotheque2 = this.physics.add.sprite(200, 600, 'hit');
+        this.bibliotheque2.setDisplaySize(30, 250);
         this.bibliotheque2.setImmovable(true);
         this.physics.add.collider(this.player, this.bibliotheque2);
 
-        this.bibliotheque3 = this.physics.add.sprite(400, 210, 'hitbox');
-        this.bibliotheque3.setDisplaySize(20, 250);
+        this.bibliotheque3 = this.physics.add.sprite(400, 210, 'hit');
+        this.bibliotheque3.setDisplaySize(30, 250);
         this.bibliotheque3.setImmovable(true);
         this.physics.add.collider(this.player, this.bibliotheque3);
 
-        this.bibliotheque4 = this.physics.add.sprite(400, 600, 'hitbox');
-        this.bibliotheque4.setDisplaySize(20, 250);
+        this.bibliotheque4 = this.physics.add.sprite(400, 600, 'hit');
+        this.bibliotheque4.setDisplaySize(30, 250);
         this.bibliotheque4.setImmovable(true);
         this.physics.add.collider(this.player, this.bibliotheque4);
 
-        this.bibliotheque5 = this.physics.add.sprite(600, 210, 'hitbox');
-        this.bibliotheque5.setDisplaySize(20, 250);
+        this.bibliotheque5 = this.physics.add.sprite(600, 210, 'hit');
+        this.bibliotheque5.setDisplaySize(30, 250);
         this.bibliotheque5.setImmovable(true);
         this.physics.add.collider(this.player, this.bibliotheque5);
 
-        this.bibliotheque6 = this.physics.add.sprite(600, 600, 'hitbox');
-        this.bibliotheque6.setDisplaySize(20, 250);
+        this.bibliotheque6 = this.physics.add.sprite(600, 600, 'hit');
+        this.bibliotheque6.setDisplaySize(30, 250);
         this.bibliotheque6.setImmovable(true);
         this.physics.add.collider(this.player, this.bibliotheque6);
 
-        this.bibliotheque7 = this.physics.add.sprite(800, 210, 'hitbox');
-        this.bibliotheque7.setDisplaySize(20, 250);
+        this.bibliotheque7 = this.physics.add.sprite(800, 210, 'hit');
+        this.bibliotheque7.setDisplaySize(30, 250);
         this.bibliotheque7.setImmovable(true);
         this.physics.add.collider(this.player, this.bibliotheque7);
 
-        this.bibliotheque8 = this.physics.add.sprite(800, 600, 'hitbox');
-        this.bibliotheque8.setDisplaySize(20, 250);
+        this.bibliotheque8 = this.physics.add.sprite(800, 600, 'hit');
+        this.bibliotheque8.setDisplaySize(30, 250);
         this.bibliotheque8.setImmovable(true);
         this.physics.add.collider(this.player, this.bibliotheque8);
 
-        this.topWallLibrairie = this.physics.add.sprite(0, 120, 'hitbox');
+        this.topWallLibrairie = this.physics.add.sprite(0, 120, 'hit');
         this.topWallLibrairie.setDisplaySize(2000, 10);
         this.topWallLibrairie.setImmovable(true);
         this.physics.add.collider(this.player, this.topWallLibrairie);
 
-        this.chairLibrary1 = this.physics.add.sprite(200, 400, 'hitbox');
+        this.chairLibrary1 = this.physics.add.sprite(200, 400, 'hit');
         this.chairLibrary1.setDisplaySize(10, 10);
         this.chairLibrary1.setImmovable(true);
         this.physics.add.collider(this.player, this.chairLibrary1);
 
-        this.chairsAndTable1 = this.physics.add.sprite(200, 330, 'hitbox');
+        this.chairsAndTable1 = this.physics.add.sprite(200, 330, 'hit');
         this.chairsAndTable1.setDisplaySize(300, 10);
         this.chairsAndTable1.setImmovable(true);
         this.physics.add.collider(this.player, this.chairsAndTable1);
 
-        this.tableLibrary1 = this.physics.add.sprite(200, 700, 'hitbox');
+        this.tableLibrary1 = this.physics.add.sprite(200, 700, 'hit');
         this.tableLibrary1.setDisplaySize(30, 30);
         this.tableLibrary1.setImmovable(true);
         this.physics.add.collider(this.player, this.tableLibrary1);
 
-        this.chairsAndTable2 = this.physics.add.sprite(200, 770, 'hitbox');
+        this.chairsAndTable2 = this.physics.add.sprite(200, 770, 'hit');
         this.chairsAndTable2.setDisplaySize(300, 100);
         this.chairsAndTable2.setImmovable(true);
         this.physics.add.collider(this.player, this.chairsAndTable2);
 
-        this.bottomWallLibrairie = this.physics.add.sprite(450, 800, 'hitbox');
+        this.bottomWallLibrairie = this.physics.add.sprite(450, 800, 'hit');
         this.bottomWallLibrairie.setDisplaySize(2000, 10);
         this.bottomWallLibrairie.setImmovable(true);
         this.physics.add.collider(this.player, this.bottomWallLibrairie);
 
-        this.leftWallLibrairie = this.physics.add.sprite(20, 0, 'hitbox');
-        this.leftWallLibrairie.setDisplaySize(10, 800);
+        this.leftWallLibrairie = this.physics.add.sprite(20, 0, 'hit');
+        this.leftWallLibrairie.setDisplaySize(10, 1000);
         this.leftWallLibrairie.setImmovable(true);
         this.physics.add.collider(this.player, this.leftWallLibrairie);
 
-        this.leftWallLibrairie2 = this.physics.add.sprite(20, 700, 'hitbox');
-        this.leftWallLibrairie2.setDisplaySize(10, 200);
+        this.leftWallLibrairie2 = this.physics.add.sprite(20, 700, 'hit');
+        this.leftWallLibrairie2.setDisplaySize(10, 300);
         this.leftWallLibrairie2.setImmovable(true);
         this.physics.add.collider(this.player, this.leftWallLibrairie2);
 
-        this.frere1Hitbox = this.physics.add.sprite(770, 210, 'hitbox');
+        this.frere1Hitbox = this.physics.add.sprite(770, 210, 'hit');
         this.frere1Hitbox.setDisplaySize(80, 80);
         this.frere1Hitbox.setImmovable(true);
         this.physics.add.collider(this.player, this.frere1Hitbox);
 
+        this.leftWallLibrairieBack = this.physics.add.sprite(375, 0, 'hit');
+        this.leftWallLibrairieBack.setDisplaySize(10, 5000);
+        this.leftWallLibrairieBack.setImmovable(true);
+        this.physics.add.collider(this.player, this.leftWallLibrairieBack);
+
+        this.rightWallLibrairie = this.physics.add.sprite(1500, 0, 'hit');
+        this.rightWallLibrairie.setDisplaySize(10, 5000);
+        this.rightWallLibrairie.setImmovable(true);
+        this.physics.add.collider(this.player, this.rightWallLibrairie)
 
         this.bibliotheque1.disableBody(true, true);
         this.bibliotheque2.disableBody(true, true);
@@ -502,6 +549,8 @@
         this.leftWallLibrairie.disableBody(true, true);
         this.leftWallLibrairie2.disableBody(true, true);
         this.frere1Hitbox.disableBody(true, true);
+        this.leftWallLibrairieBack.disableBody(true, true);
+        this.rightWallLibrairie.disableBody(true, true);
 
 
         // ********************************************************* CREATE RUE DE SUNA *********************************************************
@@ -587,11 +636,27 @@
             this.player.setFrame(0);
         }
 
+        if (introDialogPage > 0 && introDialogPage <= introDialogue.length) {
+            if (this.cursors.space.isDown && espaceRelache) {
+                console.log(introDialogPage)
+                if (introDialogPage > 2) {
+                    console.log(introDialogPage)
+                    document.getElementById('mainDialogueBox').style.display = 'none';
+                    document.getElementById('questBox').style.display = 'flex';
+                } else {
+                    document.getElementById('mainDialogueText').innerText = "";
+                    writeDialogueText(introDialogue[introDialogPage], 'mainDialogueText');
+                    introDialogPage++;
+                    espaceRelache = false;
+                }
+            }
+        }
+
 
         // ========================================================= UPDATE BUREAU DU KAZEKAGE =========================================================
 
-        const distanceKazekageCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 435, 355);
-        const distancePorteKazekageCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 435, 900);
+        const distanceKazekageCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 950, 440);
+        const distancePorteKazekageCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 950, 1050);
 
 
         if (lieu == "palais") {
@@ -605,6 +670,9 @@
                     document.getElementById('mainDialogueBox').style.display = 'none';
                     dialogPage++;
                     espaceRelache = false;
+                    if (dialogPage == 6) {
+                        writeQuestText(quests[1]);
+                    }
                 } else if (dialogPage >= 5 && dialogPage%2 == 0) {
                     inDialogue = true;
                     let dialogueText = dialoguesKazekage[5];
@@ -652,7 +720,7 @@
 
         // ========================================================= UPDATE PLACE DE SUNA =========================================================
 
-        const distancePorteLibrairieCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 890, 535);
+        const distancePorteLibrairieCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1900, 590);
         const distancePorteRueCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 0, 630);
         const distancePortePalaisCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 470, 890);
         const distancePorteTerrainCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 537, 0);
@@ -683,8 +751,8 @@
             // Direction Librairie
             if (distancePorteLibrairieCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
                 // move the player to the left side of the screen
-                this.player.x = 0;
-                this.player.y = 990 / 2;
+                this.player.x = 450;
+                this.player.y = 625;
                 this.bg3.setVisible(true);
                 this.bg2.setVisible(false);
                 lieu = "librairie"
@@ -736,35 +804,38 @@
 
         // ========================================================= UPDATE LIBRAIRIE DE SUNA =========================================================
 
-        const distancePortePlaceCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 0, 515);
-        const distanceBot1Coord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 760, 190);
+        const distancePortePlaceCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 450, 625);
+        const distanceBot1Coord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1365, 285);
 
         if (lieu == "librairie") {
             document.getElementById('secondaryPortrait').src = 'assets/images/portrait/03.png';
             if (!frere1 && !freresCompleted[0]) {
-                frere1 = this.physics.add.sprite(770, 190, 'walkSide2');
+                frere1 = this.physics.add.sprite(1365, 285, 'walkSide2');
                 frere1.setDepth(-1);
-                this.frere1Hitbox.enableBody(true, 770, 160);
-                frere1.setScale(3);
+                this.frere1Hitbox.enableBody(true, 1365, 285);
+                frere1.setScale(3.2);
             }
-            this.player.setScale(3)
+            this.player.setScale(3.2)
 
-            this.bibliotheque1.enableBody(true, 380, 215);
-            this.bibliotheque2.enableBody(true, 380, 620);
-            this.bibliotheque3.enableBody(true, 537, 215);
-            this.bibliotheque4.enableBody(true, 537, 620);
-            this.bibliotheque5.enableBody(true, 694, 215);
-            this.bibliotheque6.enableBody(true, 694, 620);
-            this.bibliotheque7.enableBody(true, 851, 215);
-            this.bibliotheque8.enableBody(true, 851, 620);
-            this.topWallLibrairie.enableBody(true, 0, 120);
-            this.chairLibrary1.enableBody(true, 190, 330);
-            this.chairsAndTable1.enableBody(true, 190, 260);
-            this.tableLibrary1.enableBody(true, 190, 630);
-            this.chairsAndTable2.enableBody(true, 190, 690);
-            this.bottomWallLibrairie.enableBody(true, 450, 850);
-            this.leftWallLibrairie.enableBody(true, 20, 0);
-            this.leftWallLibrairie2.enableBody(true, 20, 700);
+            this.bibliotheque1.enableBody(true, 875, 250);
+            this.bibliotheque2.enableBody(true, 1060, 720);
+            this.bibliotheque3.enableBody(true, 1060, 250);
+            this.bibliotheque4.enableBody(true, 1250, 720);
+            this.bibliotheque5.enableBody(true, 1250, 250);
+            this.bibliotheque6.enableBody(true, 1440, 720);
+            this.bibliotheque7.enableBody(true, 1440, 250);
+            this.bibliotheque8.enableBody(true, 875, 720);
+            this.topWallLibrairie.enableBody(true, 850, 160);
+            this.chairLibrary1.enableBody(true, 655, 400);
+            this.chairsAndTable1.enableBody(true, 650, 340);
+            this.tableLibrary1.enableBody(true, 655, 760);
+            this.chairsAndTable2.enableBody(true, 655, 820);
+            this.bottomWallLibrairie.enableBody(true, 800, 1030);
+            this.leftWallLibrairie.enableBody(true, 420, -50);
+            this.leftWallLibrairie2.enableBody(true, 420, 865);
+            this.leftWallLibrairieBack.enableBody(true, 375, 0);
+            this.rightWallLibrairie.enableBody(true, 1520, 0);
+
 
             if (distanceBot1Coord < seuilProximite && this.cursors.space.isDown && espaceRelache) {
                 document.getElementById('secondaryDialogueText').innerText = "";
@@ -777,21 +848,30 @@
                     dialogBot1Page++;
                     espaceRelache = false;
                     if (!freresCompleted[0]) {
+                        writeQuestText(quests[2]);
                         setTimeout(() => {
                             frere1.anims.play('walkDown2', true);
-                            this.physics.moveTo(frere1, 770, 500, 430);
+                            this.physics.moveTo(frere1, 1365, 520, 430);
                         }, 500);
                         setTimeout(() => {
                             frere1.body.stop();
                             frere1.anims.play('walkSide2', true);
                             frere1.flipX = true;
-                            this.physics.moveTo(frere1, 300, 430, 430);
+                            this.physics.moveTo(frere1, 300, 520, 430);
                             this.physics.world.removeCollider(this.frere1HitboxCollider);
-                        }, 890);
+                        }, 1000);
+                        setTimeout(() => {
+                            frere1.body.stop();
+                            frere1.anims.play('walkSide2', true);
+                            this.physics.moveTo(frere1, 425, 620, 430);
+                        }, 2200);
                         setTimeout(() => {
                             frere1.body.stop();
                             frere1.anims.stop();
-                        }, 2800);
+                            frere1.setFrame(0);
+                            frere1.setVisible(false);
+                            frere1.disableBody(true, true);
+                        }, 3200);
                         freresCompleted[0] = true;
                     }
                 } else {
@@ -831,6 +911,8 @@
                 this.leftWallLibrairie.disableBody(true, true);
                 this.leftWallLibrairie2.disableBody(true, true);
                 this.frere1Hitbox.disableBody(true, true);
+                this.leftWallLibrairieBack.disableBody(true, true);
+                this.rightWallLibrairie.disableBody(true, true);
 
                 if (frere1) {
                     frere1.disableBody(true, true);
@@ -1089,7 +1171,6 @@
     }
 
     function writeDialogueText(text, elementSelector) {
-        console.log('writing text:', text);
         const element = document.querySelector("#"+elementSelector);
         if (element) {
             new TypeIt(element, {
@@ -1101,6 +1182,38 @@
         } else {
             console.error('Element not found:', elementSelector);
         }
+    }
+
+    function writeQuestText(text) {
+        document.getElementById('questText').innerText = "";
+        const element = document.querySelector("#questText");
+        if (element) {
+            new TypeIt(element, {
+                strings: text,
+                speed: 50,
+                waitUntilVisible: true,
+                cursor: false,
+            }).go();
+        } else {
+            console.error('Element not found:', elementSelector);
+        }
+    }
+    
+    function  openFullscreen() {
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen();
+        } else if (document.documentElement.mozRequestFullScreen) { /* Firefox */
+            document.documentElement.mozRequestFullScreen();
+        } else if (document.documentElement.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+            document.documentElement.webkitRequestFullscreen();
+        } else if (document.documentElement.msRequestFullscreen) { /* IE/Edge */
+            document.documentElement.msRequestFullscreen();
+        }
+        // display none on the button
+        document.getElementById('fullScreenButton').classList.add('hidden');
+        document.getElementById('fullScreenImage').classList.add('hidden');
+        writeDialogueText(introDialogue[0], 'mainDialogueText');
+        introDialogPage++;
     }
 
 
