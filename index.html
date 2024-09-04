@@ -166,6 +166,7 @@
         this.load.audio('startSound', 'assets/sounds/effects/start.mp3');
         this.load.audio('dialogueSound', 'assets/sounds/effects/dialogue.mp3');
         this.load.audio('kazekageOst', 'assets/sounds/ost/kazekage.mp3');
+        this.load.audio('themeOst', 'assets/sounds/ost/theme.mp3');
 
         this.load.spritesheet('bot1',
             'assets/images/characters/bot1.png',
@@ -709,9 +710,7 @@
                     }
                     espaceRelache = false;
                     dialogPage++;
-                    if (dialogPage > 1) {
-                        this.sound.play('dialogueSound', { delay: 0});
-                    }
+                    this.sound.play('dialogueSound', { delay: 0});
                 }
             }
 
@@ -730,6 +729,10 @@
                 this.bg2.setVisible(true);
                 lieu = "place"
                 espaceRelache = false;
+                setTimeout(() => {
+                    this.sound.stopByKey('kazekageOst');
+                }, 1000);
+                this.sound.play('themeOst', { delay: 0, volume: 0.05, loop: true});
             }
         }
 
@@ -897,10 +900,12 @@
                         document.getElementById('secondaryDialogueBox').style.display = 'flex';
                         document.getElementById('mainDialogueBox').style.display = 'none';
                         writeDialogueText(dialogueText, 'secondaryDialogueText');
+                        this.sound.play('dialogueSound', { delay: 0});
                     } else {
                         document.getElementById('mainDialogueBox').style.display = 'flex';
                         document.getElementById('secondaryDialogueBox').style.display = 'none';
                         writeDialogueText(dialogueText, 'mainDialogueText');
+                        this.sound.play('dialogueSound', { delay: 0});
                     }
                     espaceRelache = false;
                     dialogBot1Page++;
