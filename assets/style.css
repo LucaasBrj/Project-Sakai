@@ -229,7 +229,19 @@ body {
     height: 110%;
     margin-top: -100px;
     z-index: 10;
-    transition: opacity 5s ease;
+    transition: opacity 10s ease;
+}
+
+@keyframes zoomAnimation {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 #fullScreenButton.hidden {
@@ -238,6 +250,7 @@ body {
 }
 
 #fullScreenImage {
+    animation: zoomAnimation 2s infinite;
     transition: 1s;
 }
 
