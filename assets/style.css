@@ -164,50 +164,83 @@
 
 #fightDialogueBox1 {
     display: none;
+    font-size: 10px;
+    font-family: "Press Start 2P", cursive;
+    border-radius: 2px;
+    line-height: 16px;
+    margin: auto;
+    border: 1px solid white;
+    box-shadow: 0 1px 0 1px rgb(33, 24, 27),
+                inset 0 1px 0 1px rgb(33, 24, 27),
+                0 0 0 1px rgb(33, 24, 27),
+                inset 0 0 0 1px rgb(33, 24, 27);
+    color: rgb(33, 24, 27);
     position: absolute;
-    top: 15%;
+    z-index: 2;
+    position: absolute;
+    top: 38%;
     left: 9%;
     width: 18%;
     height: 5%;
     padding: 20px;
-    border-radius: 10px;
-    border: 4px solid rgb(0, 65, 218);
     justify-content: center;
     align-items: center;
-    font-size: 1.5em;
     background-color: white;
+    text-transform: uppercase;
 }
 
 #fightDialogueBox2 {
     display: none;
+    font-size: 10px;
+    font-family: "Press Start 2P", cursive;
+    border-radius: 2px;
+    line-height: 16px;
+    margin: auto;
+    border: 1px solid white;
+    box-shadow: 0 1px 0 1px rgb(33, 24, 27),
+                inset 0 1px 0 1px rgb(33, 24, 27),
+                0 0 0 1px rgb(33, 24, 27),
+                inset 0 0 0 1px rgb(33, 24, 27);
+    color: rgb(33, 24, 27);
     position: absolute;
-    top: 15%;
+    z-index: 2;
+    position: absolute;
+    top: 38%;
     right: 9%;
     width: 18%;
     height: 5%;
     padding: 20px;
-    border-radius: 10px;
-    border: 4px solid rgb(251, 255, 25);
     justify-content: center;
     align-items: center;
-    font-size: 1.5em;
     background-color: white;
+    text-transform: uppercase;
 }
 
 #fightDialogueBoxMain {
     display: none;
+    font-size: 10px;
+    font-family: "Press Start 2P", cursive;
+    border-radius: 2px;
+    line-height: 16px;
+    margin: auto;
+    border: 1px solid white;
+    box-shadow: 0 1px 0 1px rgb(33, 24, 27),
+                inset 0 1px 0 1px rgb(33, 24, 27),
+                0 0 0 1px rgb(33, 24, 27),
+                inset 0 0 0 1px rgb(33, 24, 27);
+    color: rgb(33, 24, 27);
     position: absolute;
-    top: 15%;
-    left: 50%;
+    z-index: 2;
+    position: absolute;
+    top: 50%;
+    right: 50%;
     width: 18%;
     height: 5%;
     padding: 20px;
-    border-radius: 10px;
-    border: 4px solid rgb(151, 87, 13);
     justify-content: center;
     align-items: center;
-    font-size: 1.5em;
     background-color: white;
+    text-transform: uppercase;
 }
 
 body {
