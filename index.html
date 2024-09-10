@@ -118,12 +118,10 @@
 
     const quests = [
         "Parler au Kazekage",
-        "Trouver les autres frères Sakai (0/4)",
-        "Trouver les autres frères Sakai (1/4)",
-        "Trouver les autres frères Sakai (2/4)",
-        "Trouver les autres frères Sakai (3/4)",
-        "Trouver les autres frères Sakai (4/4)",
-        "Retourner voir le Kazekage"
+        "Aller chercher X à la librairie",
+        "Aller chercher X et X au terrain d'entraînement",
+        "Chercher X dans le village",
+        "Retourner voir le Kazekage",
     ]
 
     const introDialogue = [
@@ -134,6 +132,7 @@
 
 
     let lieu = "palais"
+    let rue = null;
     let introDialogPage = 0;
     let dialogPage = 0;
     let dialogBot1Page = 0;
@@ -141,10 +140,10 @@
     let dialogBot4Page = 0;
     let isFightDialogStarted = false;
     let FieldDialogue = 'waiting';
-    let frere2 = null;
     let frere3 = null;
-    let frere1 = null;
     let frere4 = null;
+    let frere2 = null;
+    let frere5 = null;
     let inDialogue = true;
     let freresCompleted = [
         false,
@@ -172,87 +171,67 @@
         this.load.audio('kazekageOst', 'assets/sounds/ost/kazekage.mp3');
         this.load.audio('themeOst', 'assets/sounds/ost/theme.mp3');
 
-        this.load.spritesheet('bot1',
-            'assets/images/characters/bot1.png',
-            { frameWidth: 91, frameHeight: 158 }
-        );
-        this.load.spritesheet('walkSide1', 'assets/images/characters/walkSide/002.png', {
+        this.load.spritesheet('walkSide1', 'assets/images/characters/walkSide/1.png', {
             frameWidth: 29,
             frameHeight: 32
         });
-        this.load.spritesheet('walkUp1', 'assets/images/characters/walkUp/002.png', {
+        this.load.spritesheet('walkUp1', 'assets/images/characters/walkUp/1.png', {
             frameWidth: 34,
             frameHeight: 32
         });
-        this.load.spritesheet('walkDown1', 'assets/images/characters/walkDown/002.png', {
+        this.load.spritesheet('walkDown1', 'assets/images/characters/walkDown/1.png', {
             frameWidth: 34,
             frameHeight: 32
         });
 
-        this.load.spritesheet('bot2',
-            'assets/images/characters/bot2.png',
-            { frameWidth: 91, frameHeight: 158 }
-        );
-        this.load.spritesheet('walkSide2', 'assets/images/characters/walkSide/003.png', {
+        this.load.spritesheet('walkSide2', 'assets/images/characters/walkSide/2.png', {
             frameWidth: 29,
             frameHeight: 32
         });
-        this.load.spritesheet('walkUp2', 'assets/images/characters/walkUp/003.png', {
+        this.load.spritesheet('walkUp2', 'assets/images/characters/walkUp/2.png', {
             frameWidth: 34,
             frameHeight: 32
         });
-        this.load.spritesheet('walkDown2', 'assets/images/characters/walkDown/003.png', {
+        this.load.spritesheet('walkDown2', 'assets/images/characters/walkDown/2.png', {
             frameWidth: 34,
             frameHeight: 32
         });
 
-        this.load.spritesheet('bot3',
-            'assets/images/characters/bot3.png',
-            { frameWidth: 91, frameHeight: 158 }
-        );
-        this.load.spritesheet('walkSide3', 'assets/images/characters/walkSide/004.png', {
+        this.load.spritesheet('walkSide3', 'assets/images/characters/walkSide/3.png', {
             frameWidth: 29,
             frameHeight: 32
         });
-        this.load.spritesheet('walkUp3', 'assets/images/characters/walkUp/004.png', {
+        this.load.spritesheet('walkUp3', 'assets/images/characters/walkUp/3.png', {
             frameWidth: 34,
             frameHeight: 32
         });
-        this.load.spritesheet('walkDown3', 'assets/images/characters/walkDown/004.png', {
+        this.load.spritesheet('walkDown3', 'assets/images/characters/walkDown/3.png', {
             frameWidth: 34,
             frameHeight: 32
         });
 
-        this.load.spritesheet('bot4',
-            'assets/images/characters/joueur.png',
-            { frameWidth: 91, frameHeight: 158 }
-        );
-        this.load.spritesheet('walkSide4', 'assets/images/characters/walkSide/005.png', {
+        this.load.spritesheet('walkSide4', 'assets/images/characters/walkSide/4.png', {
             frameWidth: 29,
             frameHeight: 32
         });
-        this.load.spritesheet('walkUp4', 'assets/images/characters/walkUp/005.png', {
+        this.load.spritesheet('walkUp4', 'assets/images/characters/walkUp/4.png', {
             frameWidth: 34,
             frameHeight: 32
         });
-        this.load.spritesheet('walkDown4', 'assets/images/characters/walkDown/005.png', {
+        this.load.spritesheet('walkDown4', 'assets/images/characters/walkDown/4.png', {
             frameWidth: 34,
             frameHeight: 32
         });
 
-        this.load.spritesheet('bot5',
-            'assets/images/characters/walkDown/001.png',
-            { frameWidth: 91, frameHeight: 158 }
-        );
-        this.load.spritesheet('walkSide5', 'assets/images/characters/walkSide/001.png', {
+        this.load.spritesheet('walkSide5', 'assets/images/characters/walkSide/5.png', {
             frameWidth: 29,
             frameHeight: 32
         });
-        this.load.spritesheet('walkUp5', 'assets/images/characters/walkUp/001.png', {
+        this.load.spritesheet('walkUp5', 'assets/images/characters/walkUp/5.png', {
             frameWidth: 34,
             frameHeight: 32
         });
-        this.load.spritesheet('walkDown5', 'assets/images/characters/walkDown/001.png', {
+        this.load.spritesheet('walkDown5', 'assets/images/characters/walkDown/5.png', {
             frameWidth: 34,
             frameHeight: 32
         });
@@ -314,9 +293,9 @@
             repeat: -1
         });
     
-        this.frere3 = this.physics.add.sprite(770, 270, 'walkDown3');
-        this.frere3.setDepth(-1);
-        this.frere3.setScale(3.55);
+        this.frere4 = this.physics.add.sprite(770, 270, 'walkDown3');
+        this.frere4.setDepth(-1);
+        this.frere4.setScale(3.55);
         this.anims.create({
             key: 'walkSide3',
             frames: this.anims.generateFrameNumbers('walkSide3', { start: 0, end: 3 }),
@@ -335,11 +314,11 @@
             frameRate: 8,
             repeat: -1
         });
-        this.frere3.disableBody(true, true);
+        this.frere4.disableBody(true, true);
 
-        this.frere4 = this.physics.add.sprite(770, 270, 'walkDown4');
-        this.frere4.setDepth(-1);
-        this.frere4.setScale(3.55);
+        this.frere5 = this.physics.add.sprite(770, 270, 'walkDown4');
+        this.frere5.setDepth(-1);
+        this.frere5.setScale(3.55);
         this.anims.create({
             key: 'walkSide4',
             frames: this.anims.generateFrameNumbers('walkSide4', { start: 0, end: 3 }),
@@ -376,7 +355,7 @@
             frameRate: 8,
             repeat: -1
         });
-        this.frere4.disableBody(true, true);
+        this.frere5.disableBody(true, true);
 
         this.bg1 = this.add.image(width/2, height/2, 'bg1').setDepth(-6);
         this.bg1.displayHeight = height;
@@ -467,28 +446,6 @@
             this.kazekageRightLibrary
         ]
 
-
-        // ********************************************************* CREATE BOTS *********************************************************
-
-        this.bot1 = this.physics.add.sprite(1150, 180, 'bot1');
-        this.bot1.setCollideWorldBounds(true);
-        this.bot1.setImmovable(true);
-        this.physics.add.collider(this.player, this.bot1);
-
-        this.bot2 = this.physics.add.sprite(90, 330, 'bot2');
-        this.bot2.setCollideWorldBounds(true);
-        this.physics.add.collider(this.player, this.bot2);
-
-        this.bot3 = this.physics.add.sprite(1800, 330, 'bot3');
-        this.bot3.setCollideWorldBounds(true);
-        this.physics.add.collider(this.player, this.bot3);
-
-        this.bot4 = this.physics.add.sprite(300, 680, 'bot4');
-        this.bot4.setCollideWorldBounds(true);
-        this.bot4.setImmovable(true);
-        this.physics.add.collider(this.player, this.bot4);
-
-
         // ********************************************************* CREATE LIBRAIRIE DE SUNA *********************************************************
 
         this.bibliotheque1 = this.physics.add.sprite(200, 210, 'hit');
@@ -571,10 +528,10 @@
         this.leftWallLibrairie2.setImmovable(true);
         this.physics.add.collider(this.player, this.leftWallLibrairie2);
 
-        this.frere1Hitbox = this.physics.add.sprite(770, 210, 'hit');
-        this.frere1Hitbox.setDisplaySize(80, 80);
-        this.frere1Hitbox.setImmovable(true);
-        this.physics.add.collider(this.player, this.frere1Hitbox);
+        this.frere2Hitbox = this.physics.add.sprite(770, 210, 'hit');
+        this.frere2Hitbox.setDisplaySize(80, 80);
+        this.frere2Hitbox.setImmovable(true);
+        this.physics.add.collider(this.player, this.frere2Hitbox);
 
         this.leftWallLibrairieBack = this.physics.add.sprite(375, 0, 'hit');
         this.leftWallLibrairieBack.setDisplaySize(10, 5000);
@@ -602,7 +559,7 @@
         this.bottomWallLibrairie.disableBody(true, true);
         this.leftWallLibrairie.disableBody(true, true);
         this.leftWallLibrairie2.disableBody(true, true);
-        this.frere1Hitbox.disableBody(true, true);
+        this.frere2Hitbox.disableBody(true, true);
         this.leftWallLibrairieBack.disableBody(true, true);
         this.rightWallLibrairie.disableBody(true, true);
 
@@ -702,32 +659,45 @@
 
         // ********************************************************* CREATE RUE DE SUNA *********************************************************
 
-    
+        this.doublePotRue = this.physics.add.sprite(500, 470, 'hit');
+        this.doublePotRue.setDisplaySize(100, 50);
+        this.doublePotRue.setImmovable(true);
+        this.physics.add.collider(this.player, this.doublePotRue);
+        this.doublePotRue2 = this.physics.add.sprite(1475, 495, 'hit');
+        this.doublePotRue2.setDisplaySize(100, 50);
+        this.doublePotRue2.setImmovable(true);
+        this.physics.add.collider(this.player, this.doublePotRue2);
 
-
-        this.rue1 = this.physics.add.sprite(950, 60);
-        this.rue1.setDisplaySize(1900, 130);
+        this.rue1 = this.physics.add.sprite(1520, 250, 'hit');
+        this.rue1.setDisplaySize(950, 470);
         this.rue1.setImmovable(true);
         this.physics.add.collider(this.player, this.rue1);
-
-        this.rue2 = this.physics.add.sprite(980, 920);
-        this.rue2.setDisplaySize(1900, 160);
+        this.rue2 = this.physics.add.sprite(480, 220, 'hit');
+        this.rue2.setDisplaySize(950, 470);
         this.rue2.setImmovable(true);
         this.physics.add.collider(this.player, this.rue2);
+        this.rueBas = this.physics.add.sprite(width/2 , 995, 'hit');
+        this.rueBas.setDisplaySize(2000, 205);
+        this.rueBas.setImmovable(true);
+        this.physics.add.collider(this.player, this.rueBas);
+        this.rueBasBat = this.physics.add.sprite(720 , 835, 'hit');
+        this.rueBasBat.setDisplaySize(600, 80);
+        this.rueBasBat.setImmovable(true);
+        this.physics.add.collider(this.player, this.rueBasBat);
+        this.rueBasBat2 = this.physics.add.sprite(1810, 835, 'hit');
+        this.rueBasBat2.setDisplaySize(150, 80);
+        this.rueBasBat2.setImmovable(true);
+        this.physics.add.collider(this.player, this.rueBasBat2);
 
         this.rue1.disableBody(true, true);
         this.rue2.disableBody(true, true);
-        this.bot1.disableBody(true, true);
-        this.bot2.disableBody(true, true);
-        this.bot3.disableBody(true, true);
-        this.bot4.disableBody(true, true);
+        this.rueBasBat.disableBody(true, true);
+        this.rueBasBat2.disableBody(true, true);
+        this.doublePotRue.disableBody(true, true);
+        this.doublePotRue2.disableBody(true, true);
+        this.rueBas.disableBody(true, true);
 
         this.player.setCollideWorldBounds(true);
-
-        this.cursors = this.input.keyboard.createCursorKeys();
-
-        this.player.setCollideWorldBounds(true);
-
         this.cursors = this.input.keyboard.createCursorKeys();
     }
 
@@ -854,6 +824,8 @@
                 setTimeout(() => {
                     this.sound.stopByKey('kazekageOst');
                 }, 1000);
+                this.player.anims.play('walkUp1', true);
+                this.player.setFrame(0);
                 this.sound.play('themeOst', { delay: 0, volume: 0.05, loop: true});
             }
         }
@@ -861,10 +833,11 @@
 
         // ========================================================= UPDATE PLACE DE SUNA =========================================================
 
-        const distancePorteLibrairieCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1900, 590);
-        const distancePorteRueCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 0, 630);
+        const distancePorteLibrairieCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1370, 500);
+        const distancePorteRueCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 0, 730);
         const distancePortePalaisCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 470, 890);
         const distancePorteTerrainCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1070, 0);
+        const distancePorteRueDroiteCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1915, 670);
 
         if (lieu == "place") {
             // load batiment
@@ -897,6 +870,8 @@
                 this.bg2.setVisible(false);
                 this.bg1.setVisible(true);
                 lieu = "palais"
+                this.player.anims.play('walkUp1', true);
+                this.player.setFrame(0);
                 espaceRelache = false;
                 freresCompleted.forEach((completed, index) => {
                     if (completed) {
@@ -911,6 +886,8 @@
                 // move the player to the left side of the screen
                 this.player.x = 450;
                 this.player.y = 625;
+                this.player.anims.play('walkSide1', true);
+                this.player.setFrame(0);
                 this.bg3.setVisible(true);
                 this.bg2.setVisible(false);
                 lieu = "librairie"
@@ -927,10 +904,14 @@
                 // move the player to the right side of the screen
                 disablePlaceItems();
                 this.player.x = 1905;
-                this.player.y = 560;
+                this.player.y = 660;
+                this.player.anims.play('walkSide1', true);
+                this.player.flipX = true;
+                this.player.setFrame(0);
                 this.bg5.setVisible(true);
                 this.bg2.setVisible(false);
                 lieu = "rue"
+                rue = "gauche";
                 espaceRelache = false;
                 freresCompleted.forEach((completed, index) => {
                     if (completed) {
@@ -942,12 +923,36 @@
             // Direction Terrain
             if (distancePorteTerrainCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
                 // move the player to the top side of the screen
+                
                 disablePlaceItems();
                 this.player.y = 990;
                 this.player.x = 1022;
+                this.player.anims.play('walkUp1', true);
+                this.player.setFrame(0);
                 this.bg4.setVisible(true);
                 this.bg2.setVisible(false);
                 lieu = "terrain"
+                espaceRelache = false;
+                freresCompleted.forEach((completed, index) => {
+                    if (completed) {
+                        freres[index].disableBody(true, true);
+                    }
+                })
+            }
+
+            // Direction Rue Droite
+            if (distancePorteRueDroiteCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
+                // move the player to the right side of the screen
+                disablePlaceItems();
+                this.player.x = 0;
+                this.player.y = 730;
+                this.player.anims.play('walkSide1', true);
+                this.player.flipX = false;
+                this.player.setFrame(0);
+                this.bg5.setVisible(true);
+                this.bg2.setVisible(false);
+                lieu = "rue";
+                rue = "droite";
                 espaceRelache = false;
                 freresCompleted.forEach((completed, index) => {
                     if (completed) {
@@ -969,11 +974,11 @@
 
         if (lieu == "librairie") {
             document.getElementById('secondaryPortrait').src = 'assets/images/portrait/03.png';
-            if (!frere1 && !freresCompleted[0]) {
-                frere1 = this.physics.add.sprite(1365, 285, 'walkSide2');
-                frere1.setDepth(-1);
-                this.frere1Hitbox.enableBody(true, 1365, 285);
-                frere1.setScale(3.2);
+            if (!frere2 && !freresCompleted[2]) {
+                frere2 = this.physics.add.sprite(1365, 285, 'walkSide2');
+                frere2.setDepth(-1);
+                this.frere2Hitbox.enableBody(true, 1365, 285);
+                frere2.setScale(3.2);
             }
             this.player.setScale(3.2)
 
@@ -1001,38 +1006,37 @@
                 document.getElementById('secondaryDialogueText').innerText = "";
                 document.getElementById('mainDialogueText').innerText = "";
                 if (dialogBot1Page >= 5) {
-                    inDialogue = false;
                     document.getElementById('secondaryDialogueBox').style.display = 'none';
                     document.getElementById('mainDialogueBox').style.display = 'none';
-                    this.frere1Hitbox.disableBody(true, true);
+                    this.frere2Hitbox.disableBody(true, true);
                     dialogBot1Page++;
                     espaceRelache = false;
-                    if (!freresCompleted[0]) {
+                    if (!freresCompleted[2]) {
                         writeQuestText(quests[2]);
                         setTimeout(() => {
-                            frere1.anims.play('walkDown2', true);
-                            this.physics.moveTo(frere1, 1365, 520, 430);
+                            frere2.anims.play('walkDown2', true);
+                            this.physics.moveTo(frere2, 1365, 520, 430);
                         }, 500);
                         setTimeout(() => {
-                            frere1.body.stop();
-                            frere1.anims.play('walkSide2', true);
-                            frere1.flipX = true;
-                            this.physics.moveTo(frere1, 300, 520, 430);
-                            this.physics.world.removeCollider(this.frere1HitboxCollider);
+                            frere2.body.stop();
+                            frere2.anims.play('walkSide2', true);
+                            frere2.flipX = true;
+                            this.physics.moveTo(frere2, 300, 520, 430);
+                            this.physics.world.removeCollider(this.frere2HitboxCollider);
                         }, 1000);
                         setTimeout(() => {
-                            frere1.body.stop();
-                            frere1.anims.play('walkSide2', true);
-                            this.physics.moveTo(frere1, 425, 620, 430);
+                            frere2.body.stop();
+                            frere2.anims.play('walkSide2', true);
+                            this.physics.moveTo(frere2, 425, 620, 430);
                         }, 2200);
                         setTimeout(() => {
-                            frere1.body.stop();
-                            frere1.anims.stop();
-                            frere1.setFrame(0);
-                            frere1.setVisible(false);
-                            frere1.disableBody(true, true);
+                            frere2.body.stop();
+                            frere2.anims.stop();
+                            frere2.setFrame(0);
+                            frere2.setVisible(false);
+                            frere2.disableBody(true, true);
                         }, 3200);
-                        freresCompleted[0] = true;
+                        freresCompleted[2] = true;
                     }
                 } else {
                     inDialogue = true;
@@ -1072,32 +1076,26 @@
                 this.bottomWallLibrairie.disableBody(true, true);
                 this.leftWallLibrairie.disableBody(true, true);
                 this.leftWallLibrairie2.disableBody(true, true);
-                this.frere1Hitbox.disableBody(true, true);
+                this.frere2Hitbox.disableBody(true, true);
                 this.leftWallLibrairieBack.disableBody(true, true);
                 this.rightWallLibrairie.disableBody(true, true);
 
-                if (frere1) {
-                    frere1.disableBody(true, true);
-                    frere1 = null;
+                if (frere2) {
+                    frere2.disableBody(true, true);
+                    frere2 = null;
                 }
                 
-                this.player.x = 1850;
-                this.player.y = 640;
+                this.player.x = 1370;
+                this.player.y = 500;
+                this.player.anims.play('walkDown1', true);
+                this.player.setFrame(0);
                 this.bg3.setVisible(false);
                 this.bg2.setVisible(true);
                 lieu = "place"
-
-                let freresCount = 0;
-                freresCompleted.forEach((completed, index) => {
-                    if (completed) {
-                        freres[index] = this.physics.add.sprite(985, 950 - (freresCount*55), 'bot'+(index+1));
-
-                        freres[index].setDepth(20-index);
-                        freresCount++;
-                    }
-                })
+                this.player.setScale(3.55);
 
                 espaceRelache = false;
+                displayFinishedBrothers();
 
             }
         }
@@ -1105,39 +1103,82 @@
 
         // ========================================================= UPDATE RUE DE SUNA =========================================================
 
-        const distancePortePlaceRueCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 890, 580);
-        const distanceBot4Coord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 300, 680);
+        let distancePortePlaceRueCoord;
+        if (rue == "gauche") {
+            distancePortePlaceRueCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1900, 670);
+        } else {
+            distancePortePlaceRueCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 0, 670);
+        }
+        const distanceBot4Coord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 970, 480);
 
         if (lieu == "rue") {
-            if (!frere4 && !freresCompleted[3]) {
-                frere4 = this.physics.add.sprite(300, 680, 'walkDown4');
-                frere4.setScale(3.2);
+            document.getElementById('secondaryPortrait').src = 'assets/images/portrait/01.png';
+            this.rue1.enableBody(true, 1520, 230);
+            this.rue2.enableBody(true, 480, 200);
+            this.rueBas.enableBody(true, width/2, 975);
+            this.rueBasBat.enableBody(true, 720, 835);
+            this.rueBasBat2.enableBody(true, 1810, 835);
+            this.doublePotRue.enableBody(true, 500, 470);
+            this.doublePotRue2.enableBody(true, 1475, 495);
+            if (!frere5 && !freresCompleted[5]) {
+                frere5Hitbox = this.physics.add.sprite(970, 480, 'hit');
+                frere5Hitbox.setDisplaySize(20, 20);
+                frere5Hitbox.setImmovable(true);
+                frere5Hitbox.setVisible(false);
+                this.physics.add.collider(this.player, frere5Hitbox);
+
+                frere5 = this.physics.add.sprite(970, 480, 'walkUp5');
+                frere5.setScale(3.55);
+                frere5.setDepth(-1);
             }
 
             if (distanceBot4Coord < seuilProximite && this.cursors.space.isDown && espaceRelache) {
+                inDialogue = true;
                 if (dialogBot4Page >= 9) {
+                    inDialogue = false
+                    frere5Hitbox.disableBody(true, true);
                     document.getElementById('secondaryDialogueBox').style.display = 'none';
                     document.getElementById('mainDialogueBox').style.display = 'none';
-                    dialogBot4Page++;
-                    espaceRelache = false;
-                    setTimeout(() => {
-                        this.physics.moveTo(frere4, 1905, 500, 800);
-                    }, 500);
-                    setTimeout(() => {
-                        frere4.body.stop();
-                    }, 2800);
-                    freresCompleted[3] = true;
-            
+                    if (!freresCompleted[5]) {
+                        dialogBot4Page++;
+                        espaceRelache = false;
+                        setTimeout(() => {
+                            writeQuestText(quests[4]);
+                            this.physics.moveTo(frere5, 970, 650, 430);
+                            frere5.anims.play('walkDown5', true);
+                        }, 500);
+                        setTimeout(() => {
+                            frere5.body.stop();
+                            frere5.anims.play('walkSide5', true);
+                            if (rue == "gauche") {
+                                this.physics.moveTo(frere5, 2000, 650, 430);
+                            } else {
+                                frere5.flipX = true;
+                                this.physics.moveTo(frere5, 0, 650, 430);
+                            }
+                        }, 800);
+                        setTimeout(() => {
+                            frere5.body.stop();
+                            frere5.anims.stop();
+                            frere5.setFrame(0);
+                            frere5.setVisible(false);
+                            frere5.disableBody(true, true);
+                        }, 3500) ;
+                        freresCompleted[5] = true;
+                    }
                 } else {
+                    frere5.anims.play('walkDown5', true);
+                    frere5.anims.stop();
+                    frere5.setFrame(0);
                     let dialogueText = dialoguesBot4[dialogBot4Page];
                     if (dialogBot4Page%2 == 0) {
                         document.getElementById('secondaryDialogueBox').style.display = 'flex';
                         document.getElementById('mainDialogueBox').style.display = 'none';
-                        document.getElementById('secondaryDialogueText').innerText = dialogueText;
+                        writeDialogueText(dialogueText, 'secondaryDialogueText');
                     } else {
                         document.getElementById('mainDialogueBox').style.display = 'flex';
                         document.getElementById('secondaryDialogueBox').style.display = 'none';
-                        document.getElementById('mainDialogueText').innerText = dialogueText;
+                        writeDialogueText(dialogueText, 'mainDialogueText');
                     }
                     espaceRelache = false;
                     dialogBot4Page++;
@@ -1145,24 +1186,36 @@
             }
 
             // Direction Place
-            if (distancePortePlaceRueCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
-                this.player.x = 0;
-                this.player.y = 610;
+            if (distancePortePlaceRueCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {      
+                this.player.anims.play('walkSide1', true);
+                if (rue == "gauche") {
+                    this.player.x = 0;
+                    this.player.y = 730;
+                    this.player.flipX = false;
+                } else {
+                    this.player.x = 1915;
+                    this.player.y = 670;
+                    this.player.flipX = true;
+                }
+                this.player.setFrame(0);
                 this.bg5.setVisible(false);
                 this.bg2.setVisible(true);
-                this.bot4.disableBody(true, true);
+                this.rue1.disableBody(true, true);
+                this.rue2.disableBody(true, true);
+                this.rueBas.disableBody(true, true);
+                this.rueBasBat.disableBody(true, true);
+                this.rueBasBat2.disableBody(true, true);
+                this.doublePotRue.disableBody(true, true);
+                this.doublePotRue2.disableBody(true, true);
+                frere5Hitbox.disableBody(true, true);
+                if (frere5) {
+                    frere5.disableBody(true, true);
+                    frere5 = null;
+                }
                 lieu = "place"
                 espaceRelache = false;
 
-                let freresCount = 0;
-                freresCompleted.forEach((completed, index) => {
-                    if (completed) {
-                        freres[index] = this.physics.add.sprite(985, 950 - (freresCount*55), 'bot'+(index+1));
-
-                        freres[index].setDepth(20-index);
-                        freresCount++;
-                    }
-                })
+                displayFinishedBrothers();
             }
         }
 
@@ -1172,17 +1225,17 @@
         const distancePortePlaceTerrainCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1020, 1060);
 
         if (lieu == "terrain") {
-            if (!frere2 && !freresCompleted[1]) {
-                frere2 = this.physics.add.sprite(90, 550, 'walkSide5');
-                frere2.setScale(3.55);
-                frere2.setDepth(-1);
+            if (!frere3 && !freresCompleted[3]) {
+                frere3 = this.physics.add.sprite(90, 550, 'walkSide3');
+                frere3.setScale(3.55);
+                frere3.setDepth(-1);
             }
 
-            if (!frere3 && !freresCompleted[2]) {
-                frere3 = this.physics.add.sprite(1830, 550, 'walkSide3');
-                frere3.setScale(3.55);
-                frere3.flipX = true;
-                frere3.setDepth(-1);
+            if (!frere4 && !freresCompleted[4]) {
+                frere4 = this.physics.add.sprite(1830, 550, 'walkSide4');
+                frere4.setScale(3.55);
+                frere4.flipX = true;
+                frere4.setDepth(-1);
 
             }
             this.grillageTerrain1.enableBody(true, 480, 890);
@@ -1198,6 +1251,7 @@
             }
 
             if (this.player.y <= 625 && dialogBot2et3Page <= 5) {
+                inDialogue = true;
                 this.player.setVelocity(0, 0);
                 if (FieldDialogue == 'waiting') {
                     document.getElementById('fightDialogueBoxMain').style.display = 'flex';
@@ -1207,15 +1261,18 @@
                         document.getElementById('fightDialogueText2').innerText = '???';
                     }, 500)
                     setTimeout(() => {
-                        frere2.anims.play('walkSide5', true);
                         frere3.anims.play('walkSide3', true);
-                        this.physics.moveTo(frere2, this.player.x - 20, this.player.y - 100, 800);
-                        this.physics.moveTo(frere3, this.player.x + 20, this.player.y - 100, 800);
+                        frere4.anims.play('walkSide4', true);
+                        this.physics.moveTo(frere3, this.player.x - 20, this.player.y - 100, 800);
+                        this.physics.moveTo(frere4, this.player.x + 20, this.player.y - 100, 800);
                         document.getElementById('fightDialogueBox1').style.display = 'none';
                         document.getElementById('fightDialogueBoxMain').style.display = 'none';
                         document.getElementById('fightDialogueBox2').style.display = 'none';
                     }, 1500);
                     setTimeout(() => {
+                        document.getElementById('fightDialogueBox1').style.display = 'none';
+                        document.getElementById('fightDialogueBoxMain').style.display = 'none';
+                        document.getElementById('fightDialogueBox2').style.display = 'none';
                         document.getElementById('secondaryPortrait').src = 'assets/images/portrait/01.png';
                         document.getElementById('secondaryDialogueBox').style.display = 'flex';
                         writeDialogueText(dialoguesBot2et3[dialogBot2et3Page], 'secondaryDialogueText');
@@ -1225,16 +1282,16 @@
 
                 }
 
-                if (Phaser.Math.Distance.Between(frere2.x, frere2.y, this.player.x - 20, this.player.y - 100) < 50) {
-                    frere2.anims.play('walkDown5', true);
-                    frere2.body.stop();
-                    frere2.setFrame(0);
-
-                }
-                if (Phaser.Math.Distance.Between(frere3.x, frere3.y, this.player.x + 20, this.player.y - 100) < 50) {
+                if (Phaser.Math.Distance.Between(frere3.x, frere3.y, this.player.x - 20, this.player.y - 100) < 50) {
                     frere3.anims.play('walkDown3', true);
                     frere3.body.stop();
                     frere3.setFrame(0);
+
+                }
+                if (Phaser.Math.Distance.Between(frere4.x, frere4.y, this.player.x + 20, this.player.y - 100) < 50) {
+                    frere4.anims.play('walkDown4', true);
+                    frere4.body.stop();
+                    frere4.setFrame(0);
                 }
 
                 if (FieldDialogue == 'ended' && this.cursors.space.isDown && espaceRelache) {
@@ -1243,40 +1300,41 @@
                         document.getElementById('mainDialogueBox').style.display = 'none';
                         dialogBot2et3Page++;
                         espaceRelache = false;
-                        this.player.setVelocity(1000, 1000);
+                        inDialogue = false;
 
                         setTimeout(() => {
-                            this.physics.moveTo(frere2,  875, 633, 800);
+                            writeQuestText(quests[3]);
+                            this.physics.moveTo(frere3,  875, 633, 800);
                         }, 500);
                         setTimeout(() => {
-                            this.physics.moveTo(frere3, 875, 550, 800);
+                            this.physics.moveTo(frere4, 875, 550, 800);
                         }, 800);
-                        setTimeout(() => {
-                            frere2.body.stop();
-                            this.physics.moveTo(frere2, 1030, 750, 800);
-                        }, 600);
                         setTimeout(() => {
                             frere3.body.stop();
                             this.physics.moveTo(frere3, 1030, 750, 800);
-                        }, 1100);
+                        }, 600);
                         setTimeout(() => {
-                            frere2.body.stop();
-                            this.physics.moveTo(frere2, 1030, 1080, 800);
-                        }, 800);
+                            frere4.body.stop();
+                            this.physics.moveTo(frere4, 1030, 750, 800);
+                        }, 1100);
                         setTimeout(() => {
                             frere3.body.stop();
                             this.physics.moveTo(frere3, 1030, 1080, 800);
+                        }, 800);
+                        setTimeout(() => {
+                            frere4.body.stop();
+                            this.physics.moveTo(frere4, 1030, 1080, 800);
                         }, 1300);
                         setTimeout(() => {
+                            frere4.body.stop();
                             frere3.body.stop();
-                            frere2.body.stop();
                         }, 2500);
-                        freresCompleted[1] = true;
-                        freresCompleted[2] = true;
+                        freresCompleted[3] = true;
+                        freresCompleted[4] = true;
                     } else {
                         let dialogueText = dialoguesBot2et3[dialogBot2et3Page];
                         if (dialogBot2et3Page%3 == 0) {
-                            document.getElementById('secondaryPortrait').src = 'assets/images/portrait/01.png';
+                            document.getElementById('secondaryPortrait').src = 'assets/images/portrait/05.png';
                             document.getElementById('secondaryDialogueBox').style.display = 'flex';
                             document.getElementById('mainDialogueBox').style.display = 'none';
                             writeDialogueText(dialogueText, 'secondaryDialogueText');
@@ -1299,32 +1357,24 @@
             if (distancePortePlaceTerrainCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
                 this.player.x = 1070;
                 this.player.y = 5;
+                this.player.anims.play('walkDown1', true);
+                this.player.setFrame(0);
                 this.grillageTerrain1.disableBody(true, true);
                 this.grillageTerrain2.disableBody(true, true);
                 this.bg4.setVisible(false);
                 this.bg2.setVisible(true);
-                this.bot2.disableBody(true, true);
-                this.bot3.disableBody(true, true);
                 this.barrieres.setVisible(false);
-                if (frere2) {
-                    frere2.disableBody(true, true);
-                    frere2 = null;
-                }
                 if (frere3) {
                     frere3.disableBody(true, true);
                     frere3 = null;
                 }
+                if (frere4) {
+                    frere4.disableBody(true, true);
+                    frere4 = null;
+                }
                 lieu = "place"
                 espaceRelache = false;
-                let freresCount = 0;
-                freresCompleted.forEach((completed, index) => {
-                    if (completed) {
-                        freres[index] = this.physics.add.sprite(985, 950 - (freresCount*55), 'bot'+(index+1));
-
-                        freres[index].setDepth(20-index);
-                        freresCount++;
-                    }
-                })
+                displayFinishedBrothers();
             }
         }
     }
@@ -1430,6 +1480,19 @@
         scene.batiments.setVisible(false);
         scene.statue.setVisible(false);
         scene.statueHitbox.disableBody(true, true);
+    }
+
+    function displayFinishedBrothers() {
+        let freresCount = 0;
+        let scene = game.scene.getScene('default');
+        freresCompleted.forEach((completed, index) => {
+            if (completed) {
+                freres[index] = scene.physics.add.sprite(985, 950 - (freresCount*55), 'walkDown'+(index));
+                freres[index].setDepth(20-index);
+                freres[index].setScale(3.55);
+                freresCount++;
+            }
+        })
     }
 
 
