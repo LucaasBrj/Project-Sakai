@@ -119,7 +119,7 @@
     const quests = [
         "Parler au Kazekage",
         "Aller chercher X à la librairie",
-        "Aller chercher X et X au terrain d'entraînement",
+        "Chercher X et X au terrain d'entraînement et les interrompre",
         "Chercher X dans le village",
         "Retourner voir le Kazekage",
     ]
@@ -128,6 +128,12 @@
         "C'est la première fois que je rentre dans ce bureau... C'est impressionnant !",
         "Le Kazekage m\'a convoqué mais je ne sais pas vraiment à quel sujet...",
         "Allez Kikuo ! Pas de bégaiement et présente toi au Kazekage !"
+    ]
+
+    const questsRedirectionText = [
+        "Le Kazekage m'attends, je dois d'abord aller à sa rencontre...",
+        "Je devrais plutôt aller chercher X à la librairie sur la place principale du village...",
+        "Le temps presse, je devrais plutôt aller chercher X et X au terrain d'entraînement...",
     ]
 
 
@@ -153,6 +159,9 @@
     ]
     let freres = []
     let lastAnimation = null;
+    let questProgress = 0;
+    let redirectionBox = false;
+    let typeItInstance = null;
 
     function preload ()
     {
@@ -808,25 +817,42 @@
 
             // Direction Place
             if (distancePorteKazekageCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
-                this.bureauPart1.disableBody(true, true);
-                this.bureauPart2.disableBody(true, true);
-                this.bureauPart3.disableBody(true, true);
-                this.topWall.disableBody(true, true);
-                this.chess.disableBody(true, true);
-                this.kazekageLeftLibrary.disableBody(true, true);
-                this.kazekageRightLibrary.disableBody(true, true);
-                this.kazekageBottomWall.disableBody(true, true);
-                this.kazekageBottomWall2.disableBody(true, true);
-                this.bg1.setVisible(false);
-                this.bg2.setVisible(true);
-                lieu = "place"
+                if (questProgress == 1 && introDialogPage >= 3) {
+                    if (redirectionBox) {
+                        console.log('redirection ferme');
+                        document.getElementById('mainDialogueBox').style.display = 'none';
+                        redirectionBox = false;
+                        inDialogue = false;
+                    } else {
+                        console.log('redirection');
+                        inDialogue = true;
+                        document.getElementById('mainDialogueBox').style.display = 'flex';
+                        writeDialogueText(questsRedirectionText[0], 'mainDialogueText');
+                        redirectionBox = true;
+                    }
+                }
+
+                if (questProgress > 1) {
+                    this.bureauPart1.disableBody(true, true);
+                    this.bureauPart2.disableBody(true, true);
+                    this.bureauPart3.disableBody(true, true);
+                    this.topWall.disableBody(true, true);
+                    this.chess.disableBody(true, true);
+                    this.kazekageLeftLibrary.disableBody(true, true);
+                    this.kazekageRightLibrary.disableBody(true, true);
+                    this.kazekageBottomWall.disableBody(true, true);
+                    this.kazekageBottomWall2.disableBody(true, true);
+                    this.bg1.setVisible(false);
+                    this.bg2.setVisible(true);
+                    lieu = "place"
+                    setTimeout(() => {
+                        this.sound.stopByKey('kazekageOst');
+                    }, 1000);
+                    this.player.anims.play('walkUp1', true);
+                    this.player.setFrame(0);
+                    this.sound.play('themeOst', { delay: 0, volume: 0.05, loop: true});
+                }
                 espaceRelache = false;
-                setTimeout(() => {
-                    this.sound.stopByKey('kazekageOst');
-                }, 1000);
-                this.player.anims.play('walkUp1', true);
-                this.player.setFrame(0);
-                this.sound.play('themeOst', { delay: 0, volume: 0.05, loop: true});
             }
         }
 
@@ -901,64 +927,136 @@
 
             // Direction Rue
             if (distancePorteRueCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
-                // move the player to the right side of the screen
-                disablePlaceItems();
-                this.player.x = 1905;
-                this.player.y = 660;
-                this.player.anims.play('walkSide1', true);
-                this.player.flipX = true;
-                this.player.setFrame(0);
-                this.bg5.setVisible(true);
-                this.bg2.setVisible(false);
-                lieu = "rue"
-                rue = "gauche";
-                espaceRelache = false;
-                freresCompleted.forEach((completed, index) => {
-                    if (completed) {
-                        freres[index].disableBody(true, true);
+                if (questProgress == 2) {
+                    if (redirectionBox) {
+                        console.log('redirection ferme');
+                        document.getElementById('mainDialogueBox').style.display = 'none';
+                        redirectionBox = false;
+                        inDialogue = false;
+                    } else {
+                        console.log('redirection');
+                        inDialogue = true;
+                        document.getElementById('mainDialogueBox').style.display = 'flex';
+                        writeDialogueText(questsRedirectionText[1], 'mainDialogueText');
+                        redirectionBox = true;
                     }
-                })
+                }
+                if (questProgress == 3) {
+                    if (redirectionBox) {
+                        console.log('redirection ferme');
+                        document.getElementById('mainDialogueBox').style.display = 'none';
+                        redirectionBox = false;
+                        inDialogue = false;
+                    } else {
+                        console.log('redirection');
+                        inDialogue = true;
+                        document.getElementById('mainDialogueBox').style.display = 'flex';
+                        writeDialogueText(questsRedirectionText[2], 'mainDialogueText');
+                        redirectionBox = true;
+                    }
+                }
+                if (questProgress > 3) {
+                    disablePlaceItems();
+                    this.player.x = 1900;
+                    this.player.y = 730;
+                    this.player.anims.play('walkSide1', true);
+                    this.player.flipX = false;
+                    this.player.setFrame(0);
+                    this.bg5.setVisible(true);
+                    this.bg2.setVisible(false);
+                    lieu = "rue";
+                    rue = "gauche";
+                    freresCompleted.forEach((completed, index) => {
+                        if (completed) {
+                            freres[index].disableBody(true, true);
+                        }
+                    })
+                }
+                espaceRelache = false;
             }
 
             // Direction Terrain
             if (distancePorteTerrainCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
-                // move the player to the top side of the screen
-                
-                disablePlaceItems();
-                this.player.y = 990;
-                this.player.x = 1022;
-                this.player.anims.play('walkUp1', true);
-                this.player.setFrame(0);
-                this.bg4.setVisible(true);
-                this.bg2.setVisible(false);
-                lieu = "terrain"
-                espaceRelache = false;
-                freresCompleted.forEach((completed, index) => {
-                    if (completed) {
-                        freres[index].disableBody(true, true);
+                if (questProgress == 2) {
+                    if (redirectionBox) {
+                        console.log('redirection ferme');
+                        document.getElementById('mainDialogueBox').style.display = 'none';
+                        redirectionBox = false;
+                        inDialogue = false;
+                    } else {
+                        console.log('redirection');
+                        inDialogue = true;
+                        document.getElementById('mainDialogueBox').style.display = 'flex';
+                        writeDialogueText(questsRedirectionText[1], 'mainDialogueText');
+                        redirectionBox = true;
                     }
-                })
+                }
+                if (questProgress > 2) {
+                    disablePlaceItems();
+                    this.player.y = 990;
+                    this.player.x = 1022;
+                    this.player.anims.play('walkUp1', true);
+                    this.player.setFrame(0);
+                    this.bg4.setVisible(true);
+                    this.bg2.setVisible(false);
+                    lieu = "terrain"
+                    freresCompleted.forEach((completed, index) => {
+                        if (completed) {
+                            freres[index].disableBody(true, true);
+                        }
+                    })
+                }
+                espaceRelache = false;
             }
 
             // Direction Rue Droite
             if (distancePorteRueDroiteCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
-                // move the player to the right side of the screen
-                disablePlaceItems();
-                this.player.x = 0;
-                this.player.y = 730;
-                this.player.anims.play('walkSide1', true);
-                this.player.flipX = false;
-                this.player.setFrame(0);
-                this.bg5.setVisible(true);
-                this.bg2.setVisible(false);
-                lieu = "rue";
-                rue = "droite";
-                espaceRelache = false;
-                freresCompleted.forEach((completed, index) => {
-                    if (completed) {
-                        freres[index].disableBody(true, true);
+                if (questProgress == 2) {
+                    if (redirectionBox) {
+                        console.log('redirection ferme');
+                        document.getElementById('mainDialogueBox').style.display = 'none';
+                        redirectionBox = false;
+                        inDialogue = false;
+                    } else {
+                        console.log('redirection');
+                        inDialogue = true;
+                        document.getElementById('mainDialogueBox').style.display = 'flex';
+                        writeDialogueText(questsRedirectionText[1], 'mainDialogueText');
+                        redirectionBox = true;
                     }
-                })
+                }
+                if (questProgress == 3) {
+                    if (redirectionBox) {
+                        console.log('redirection ferme');
+                        document.getElementById('mainDialogueBox').style.display = 'none';
+                        redirectionBox = false;
+                        inDialogue = false;
+                    } else {
+                        console.log('redirection');
+                        inDialogue = true;
+                        document.getElementById('mainDialogueBox').style.display = 'flex';
+                        writeDialogueText(questsRedirectionText[2], 'mainDialogueText');
+                        redirectionBox = true;
+                    }
+                } 
+                if (questProgress > 3) {
+                    disablePlaceItems();
+                    this.player.x = 0;
+                    this.player.y = 730;
+                    this.player.anims.play('walkSide1', true);
+                    this.player.flipX = false;
+                    this.player.setFrame(0);
+                    this.bg5.setVisible(true);
+                    this.bg2.setVisible(false);
+                    lieu = "rue";
+                    rue = "droite";
+                    freresCompleted.forEach((completed, index) => {
+                        if (completed) {
+                            freres[index].disableBody(true, true);
+                        }
+                    })
+                }
+                espaceRelache = false;
             }
         }
 
@@ -1416,11 +1514,14 @@
     }
 
     function writeDialogueText(text, elementSelector, speed=10) {
+        if (typeItInstance) {
+            typeItInstance.destroy();
+        }
         document.getElementById('mainDialogueText').innerText = "";
         document.getElementById('secondaryDialogueText').innerText = "";
         const element = document.querySelector("#"+elementSelector);
         if (element) {
-            new TypeIt(element, {
+            typeItInstance = new TypeIt(element, {
                 strings: text,
                 speed: speed,
                 waitUntilVisible: true,
@@ -1441,6 +1542,8 @@
                 waitUntilVisible: true,
                 cursor: false,
             }).go();
+            questProgress++;
+            console.log(questProgress);
         } else {
             console.error('Element not found:', elementSelector);
         }
@@ -1494,8 +1597,6 @@
             }
         })
     }
-
-
 
 </script>
 
