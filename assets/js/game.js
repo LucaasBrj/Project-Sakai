@@ -1,5 +1,5 @@
 import dialogs from './dialogs.js';
-import { updateFightDialog1, updateFightDialog2, writeDialogText, writeQuestText, questProgress, disablePlaceItems, displayFinishedBrothers, brosCompleted, bros, fieldDialog, setFieldDialog } from './functions.js';
+import { brosKazekageAnimation, updateFightDialog1, updateFightDialog2, writeDialogText, writeQuestText, questProgress, disablePlaceItems, displayFinishedBrothers, brosCompleted, bros, fieldDialog, setFieldDialog, cancelFightDialogueTimeouts } from './functions.js';
 
 const height = 1080
 const width = 1920
@@ -49,7 +49,6 @@ function preload ()
     this.load.image('statue', 'assets/images/backgrounds/statue.png');
     this.load.image('piedstatue', 'assets/images/backgrounds/piedstatue.png');
     this.load.image('barrieres', 'assets/images/backgrounds/barrieres.png');
-
     this.load.audio('startSound', 'assets/sounds/effects/start.mp3');
     this.load.audio('dialogueSound', 'assets/sounds/effects/dialogue.mp3');
     this.load.audio('kazekageOst', 'assets/sounds/ost/kazekage.mp3');
@@ -127,12 +126,10 @@ function create ()
         console.log('Coordonnées du clic: x=' + pointer.x + ' y=' + pointer.y);
     });
     this.cameras.main.setBackgroundColor('#21181b');
-
     this.startSound = this.sound.add('startSound');
     this.dialogueSound = this.sound.add('dialogueSound');
 
     var fullScreenButton = document.getElementById('fullScreenButton');
-
     fullScreenButton.addEventListener('click', () => {
         this.sound.play('startSound', { delay: 0, volume: 3});
     });
@@ -319,16 +316,6 @@ function create ()
     this.kazekageBottomWall2.body.setImmovable(true);
     this.kazekageBottomWall2.setDisplaySize(200, 10);
     this.physics.add.collider(this.player, this.kazekageBottomWall2);
-
-    const kazekageOfficeHitboxes = [
-        this.bureauPart1,
-        this.bureauPart2,
-        this.bureauPart3,
-        this.topWall,
-        this.chess,
-        this.kazekageLeftLibrary,
-        this.kazekageRightLibrary
-    ]
 
     // ********************************************************* CREATE LIBRAIRIE DE SUNA *********************************************************
 
@@ -588,7 +575,7 @@ function create ()
 function update ()
 {
     const seuilProximite = 300;
-    const seuilProximitePorte = 100;
+    const seuilProximitePorte = 200;
 
     this.player.setVelocity(0);
 
@@ -649,7 +636,6 @@ function update ()
     const distanceKazekageCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 950, 440);
     const distancePorteKazekageCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 950, 1050);
 
-
     if (lieu == "palais") {
         document.getElementById('secondaryPortrait').src = 'assets/images/portrait/kazekage.png';
         if (distanceKazekageCoord < seuilProximite && this.cursors.space.isDown && espaceRelache) {
@@ -694,12 +680,10 @@ function update ()
         if (distancePorteKazekageCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
             if (questProgress == 1 && introDialogPage >= 3) {
                 if (redirectionBox) {
-                    console.log('redirection ferme');
                     document.getElementById('mainDialogueBox').style.display = 'none';
                     redirectionBox = false;
                     inDialogue = false;
                 } else {
-                    console.log('redirection');
                     inDialogue = true;
                     document.getElementById('mainDialogueBox').style.display = 'flex';
                     writeDialogText(dialogs.questsRedirectionText[0], 'mainDialogueText');
@@ -726,6 +710,11 @@ function update ()
                 this.player.anims.play('walkUp1', true);
                 this.player.setFrame(0);
                 this.sound.play('themeOst', { delay: 0, volume: 0.05, loop: true});
+                displayFinishedBrothers();
+            }
+
+            if (questProgress > 2) {
+                this.player.x = 890;
             }
             espaceRelache = false;
         }
@@ -736,7 +725,7 @@ function update ()
 
     const distancePorteLibrairieCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1370, 500);
     const distancePorteRueCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 0, 730);
-    const distancePortePalaisCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 470, 890);
+    const distancePortePalaisCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 980, 1070);
     const distancePorteTerrainCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1070, 0);
     const distancePorteRueDroiteCoord = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1915, 670);
 
@@ -756,16 +745,24 @@ function update ()
 
         // Direction Palais
         if (distancePortePalaisCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
+            console.log(questProgress);
+            this.bureauPart1.enableBody(true, 945, 330);
+            this.bureauPart2.enableBody(true, 800, 280);
+            this.bureauPart3.enableBody(true, 1090, 280);
+            this.topWall.enableBody(true, 560, 150);
+            this.chess.enableBody(true, 650, 620);
+            this.kazekageLeftLibrary.enableBody(true, 490, 600);
+            this.kazekageRightLibrary.enableBody(true, 1400, 600);
+            this.kazekageBottomWall.enableBody(true, 710, 1025);
+            this.kazekageBottomWall2.enableBody(true, 1190, 1025);
             disablePlaceItems();
-            this.bureauPart1.enableBody(true, 435, 270);
-            this.bureauPart2.enableBody(true, 320, 250);
-            this.bureauPart3.enableBody(true, 560, 250);
-            this.topWall.enableBody(true, 0, 120);
-            this.chess.enableBody(true, 190, 520);
-            this.kazekageLeftLibrary.enableBody(true, 50, 600);
-            this.kazekageRightLibrary.enableBody(true, 840, 600);
-            this.kazekageBottomWall.enableBody(true, 215, 860);
-            this.kazekageBottomWall2.enableBody(true, 670, 860);
+            this.player.y = height;
+            if (questProgress == 5) {
+                this.player.x = 1015;
+                brosKazekageAnimation();
+            } else {
+                this.player.x = width/2-10;
+            }
             this.bg2.setVisible(false);
             this.bg1.setVisible(true);
             lieu = "palais"
@@ -802,12 +799,10 @@ function update ()
         if (distancePorteRueCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
             if (questProgress == 2) {
                 if (redirectionBox) {
-                    console.log('redirection ferme');
                     document.getElementById('mainDialogueBox').style.display = 'none';
                     redirectionBox = false;
                     inDialogue = false;
                 } else {
-                    console.log('redirection');
                     inDialogue = true;
                     document.getElementById('mainDialogueBox').style.display = 'flex';
                     writeDialogText(dialogs.questsRedirectionText[1], 'mainDialogueText');
@@ -816,12 +811,10 @@ function update ()
             }
             if (questProgress == 3) {
                 if (redirectionBox) {
-                    console.log('redirection ferme');
                     document.getElementById('mainDialogueBox').style.display = 'none';
                     redirectionBox = false;
                     inDialogue = false;
                 } else {
-                    console.log('redirection');
                     inDialogue = true;
                     document.getElementById('mainDialogueBox').style.display = 'flex';
                     writeDialogText(dialogs.questsRedirectionText[2], 'mainDialogueText');
@@ -852,12 +845,10 @@ function update ()
         if (distancePorteTerrainCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
             if (questProgress == 2) {
                 if (redirectionBox) {
-                    console.log('redirection ferme');
                     document.getElementById('mainDialogueBox').style.display = 'none';
                     redirectionBox = false;
                     inDialogue = false;
                 } else {
-                    console.log('redirection');
                     inDialogue = true;
                     document.getElementById('mainDialogueBox').style.display = 'flex';
                     writeDialogText(dialogs.questsRedirectionText[1], 'mainDialogueText');
@@ -886,12 +877,10 @@ function update ()
         if (distancePorteRueDroiteCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {
             if (questProgress == 2) {
                 if (redirectionBox) {
-                    console.log('redirection ferme');
                     document.getElementById('mainDialogueBox').style.display = 'none';
                     redirectionBox = false;
                     inDialogue = false;
                 } else {
-                    console.log('redirection');
                     inDialogue = true;
                     document.getElementById('mainDialogueBox').style.display = 'flex';
                     writeDialogText(dialogs.questsRedirectionText[1], 'mainDialogueText');
@@ -900,12 +889,10 @@ function update ()
             }
             if (questProgress == 3) {
                 if (redirectionBox) {
-                    console.log('redirection ferme');
                     document.getElementById('mainDialogueBox').style.display = 'none';
                     redirectionBox = false;
                     inDialogue = false;
                 } else {
-                    console.log('redirection');
                     inDialogue = true;
                     document.getElementById('mainDialogueBox').style.display = 'flex';
                     writeDialogText(dialogs.questsRedirectionText[2], 'mainDialogueText');
@@ -1238,6 +1225,7 @@ function update ()
                     frere4.anims.play('walkSide4', true);
                     this.physics.moveTo(frere3, this.player.x - 20, this.player.y - 100, 800);
                     this.physics.moveTo(frere4, this.player.x + 20, this.player.y - 100, 800);
+                    cancelFightDialogueTimeouts();
                     document.getElementById('fightDialogueBox1').style.display = 'none';
                     document.getElementById('fightDialogueBoxMain').style.display = 'none';
                     document.getElementById('fightDialogueBox2').style.display = 'none';
@@ -1246,7 +1234,7 @@ function update ()
                     document.getElementById('fightDialogueBox1').style.display = 'none';
                     document.getElementById('fightDialogueBoxMain').style.display = 'none';
                     document.getElementById('fightDialogueBox2').style.display = 'none';
-                    document.getElementById('secondaryPortrait').src = 'assets/images/portrait/01.png';
+                    document.getElementById('secondaryPortrait').src = 'assets/images/portrait/05.png';
                     document.getElementById('secondaryDialogueBox').style.display = 'flex';
                     writeDialogText(dialogs.bot2And3[dialogBot2et3Page], 'secondaryDialogueText');
                     dialogBot2et3Page++;
@@ -1324,7 +1312,6 @@ function update ()
                 }
             }
         }
-
 
         // Direction Place
         if (distancePortePlaceTerrainCoord < seuilProximitePorte && this.cursors.space.isDown && espaceRelache) {

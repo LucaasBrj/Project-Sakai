@@ -21,8 +21,6 @@ const dialogs = {
         "Le Kazekage ? Serieux ?",
         "Je sais pas trop si je suis excité ou terrifié... Allez X on y va rapidement !",
     ],
-    bot3: [
-    ],
     bot4: [
         "Ohhhh ! SaluUUuuT X !",
         "Serieusement, regarde dans quel êtat tu t'es encore mis, on fait que de te répéter d'arrêter de boire !",
@@ -49,7 +47,7 @@ const dialogs = {
         "Aller chercher X à la librairie",
         "Chercher X et X au terrain d'entraînement et les interrompre",
         "Chercher X dans le village",
-        "Retourner voir le Kazekage",
+        "Retourner parler au Kazekage",
     ],
     intro: [
         "C'est la première fois que je rentre dans ce bureau... C'est impressionnant !",
